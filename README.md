@@ -1,0 +1,1 @@
+# QAdapt-Desktop-App
