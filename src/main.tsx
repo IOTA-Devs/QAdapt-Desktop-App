@@ -3,13 +3,22 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import "./index.scss";
 
-const Signin = lazy(() => import("./pages/signin"));
+const Signup = lazy(() => import("./pages/signup"));
+const Login = lazy(() => import("./pages/login"));
 
 function App() {
   const router = createBrowserRouter([
     {
-      path: "/",
-      element: <Signin/>
+      path: "/register",
+      element: <Signup/>
+    },
+    {
+      path: "/login",
+      element: <Login/>
+    },
+    {
+      path: "*",
+      element: <Login/>
     }
   ]);
 
