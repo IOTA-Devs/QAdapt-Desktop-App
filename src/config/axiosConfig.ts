@@ -23,20 +23,27 @@ const API = axios.create({
     }
 });
 
+const APIRefresh = axios.create({
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+});
+
 const processQueue = (error: any = null) => {
     for (let request of requestQueue) {
         if (error) {
             return request.reject(error);   
         }
+
+        if (authData) request.config.headers.Authorization = `Bearer ${authData.accessToken}`;
         return request.resolve(request.config);
     }
 };
 
 API.interceptors.request.use(async (config) => {
-    if (!authData) return config;
-    
     const now = Date.now();
-    if (authData.tokenSetAt + authData.tokenExpiresIn <= now) {
+    if (!authData || authData.tokenSetAt + authData.tokenExpiresIn <= now) {
         if (isRefreshing) {
             return new Promise((resolve, reject) => {
                 requestQueue.push({ resolve, reject, config });
@@ -44,17 +51,17 @@ API.interceptors.request.use(async (config) => {
         }
 
         try {
+            isRefreshing = true;
             const refreshToken = localStorage.getItem('r_t');
             const sessionId = localStorage.getItem('s_id');
-            if (!refreshToken || ! sessionId) return config;
+            if (!refreshToken || ! sessionId) {
+                isRefreshing = false;
+                return config;
+            };
 
-            const response = await axios.post('/auth/token', {
+            const response = await APIRefresh.post('/auth/token', {
                 refresh_token: refreshToken,
                 session_id: sessionId
-            }, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
             });
 
             authData = {
@@ -64,15 +71,17 @@ API.interceptors.request.use(async (config) => {
             };
 
             localStorage.setItem('r_t', response.data.refresh_token);
+            isRefreshing = false;
             processQueue();
-            return config;
         } catch (err) {
+            isRefreshing = false;
             processQueue(err);
             window.location.href = "/login";
             return Promise.reject(err);
         }
     }
 
+    config.headers.Authorization = `Bearer ${authData.accessToken}`;
     return config;
 }, (err) => {
     return Promise.reject(err);

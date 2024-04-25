@@ -19,8 +19,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Loader2 } from "lucide-react"
+import { SessionContext } from "@/contexts/SessionContext";
+import { useNavigate } from "react-router-dom";
+import { ErrorCodes } from "@/models/types";
 
 export default function SingupForm() {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const { signup } = useContext(SessionContext);
+    const navigate = useNavigate();
+
     const signupFormSchema = z.object({
         email: z
         .string()
@@ -30,11 +40,6 @@ export default function SingupForm() {
             .string()
             .min(1, { message: "Username is required" })
             .max(32, { message: "Username can't be longer than 32 characters." }),
-        firstName: z
-            .string()
-            .min(1, { message: "First name is required" }),
-        lastName: z 
-            .string(),
         password: z
             .string()
             .min(1, { message: "Password is required." })
@@ -50,15 +55,42 @@ export default function SingupForm() {
         defaultValues: {
             email: "",
             username: "",
-            firstName: "",
-            lastName: "",
             password: "",
             confirmPassword: ""
         }
     });
 
-    const onSubmit = (values: z.infer<typeof signupFormSchema>) => {
-        console.log(values);
+    const onSubmit = async (values: z.infer<typeof signupFormSchema>) => {
+        setLoading(true);
+        setErrorMessage("");
+
+        if (values.password !== values.confirmPassword) {
+            setLoading(false);
+            form.setError("password", {
+                type: "value",
+                message: ""
+            });
+            return form.setError("confirmPassword", {
+                type: "value",
+                message: "Passwords do not match"
+            });
+        }
+        
+        const { error } = await signup(values.username, values.email, values.password);
+        setLoading(false);
+        if (error) {
+            if (error.code === ErrorCodes.RESOURCE_CONFLICT) {
+                return form.setError("email", {
+                    type: "value",
+                    message: error.message
+                });                
+            }
+
+            setErrorMessage(error.message);
+            return;
+        }
+
+        navigate("/");
     }
 
     return (
@@ -70,15 +102,18 @@ export default function SingupForm() {
                         <p>Already have an account?</p>
                         <Link to="/login" className="pl-1 underline text-blue-500 cursor-pointer">Login</Link>
                     </div>
+                    <div className="text-red-600">
+                        {errorMessage}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                        <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                             <FormField
                                 control={form.control} 
                                 name="email"
                                 render={({field}) => (
-                                    <FormItem className="mb-4">
+                                    <FormItem>
                                         <FormLabel>Email</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Enter your email here" {...field}/>
@@ -90,44 +125,20 @@ export default function SingupForm() {
                                 control={form.control} 
                                 name="username"
                                 render={({field}) => (
-                                    <FormItem className="mb-4">
+                                    <FormItem>
                                         <FormLabel>Username</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Your username" {...field}/>
                                             </FormControl>
                                         <FormMessage />
-                                        <FormDescription>This is how others will see you. Don't use your real name.</FormDescription>
-                                    </FormItem>
-                                )}/>
-                            <FormField
-                                control={form.control} 
-                                name="firstName"
-                                render={({field}) => (
-                                    <FormItem className="mb-4">
-                                        <FormLabel>First Name</FormLabel>
-                                            <FormControl>
-                                                <Input {...field}/>
-                                            </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}/>
-                            <FormField
-                                control={form.control} 
-                                name="lastName"
-                                render={({field}) => (
-                                    <FormItem className="mb-4">
-                                        <FormLabel>Last Name</FormLabel>
-                                            <FormControl>
-                                                <Input {...field}/>
-                                            </FormControl>
-                                        <FormMessage />
+                                        <FormDescription>This is how others will see you.</FormDescription>
                                     </FormItem>
                                 )}/>
                             <FormField
                                 control={form.control} 
                                 name="password"
                                 render={({field}) => (
-                                    <FormItem className="mb-4">
+                                    <FormItem>
                                         <FormLabel>Password</FormLabel>
                                             <FormControl>
                                                 <Input type="password" placeholder="Enter your password here" {...field}/>
@@ -139,7 +150,7 @@ export default function SingupForm() {
                                 control={form.control} 
                                 name="confirmPassword"
                                 render={({field}) => (
-                                    <FormItem className="mb-4">
+                                    <FormItem>
                                         <FormLabel>Confirm Password</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Confirm your password" type="password" {...field}/>
@@ -147,7 +158,18 @@ export default function SingupForm() {
                                         <FormMessage />
                                     </FormItem>
                                 )}/>
-                            <Button type="submit" className="w-full">Sign up</Button>
+                            <Button disabled={loading} type="submit" className="w-full">
+                                {loading ? 
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
+                                        Please wait...
+                                    </>
+                                    :
+                                    <>
+                                        Sign up
+                                    </>
+                                }
+                            </Button>
                         </form>
                     </Form>
                 </CardContent>

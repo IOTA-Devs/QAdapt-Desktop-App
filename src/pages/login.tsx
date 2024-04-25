@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { set, z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -18,9 +18,17 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import { SessionContext } from "@/contexts/SessionContext";
+import { Loader2 } from "lucide-react";
 
-export default function Signin() {
+export default function Login() {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const { login } = useContext(SessionContext);
+    const navigate = useNavigate();
+
     const loginFormSchema = z.object({
         email: z
             .string()
@@ -39,8 +47,18 @@ export default function Signin() {
         }
     });
 
-    const onSubmit = (values: z.infer<typeof loginFormSchema>) => {
-        console.log(values);
+    const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
+        setLoading(true);
+        setErrorMessage("");
+        
+        const { error } = await login(values.email, values.password);
+        if (error) {
+            setLoading(false);
+            setErrorMessage(error.message);
+            return;
+        }
+
+        navigate("/");
     }
 
     return (
@@ -51,6 +69,9 @@ export default function Signin() {
                     <div className="text-sm text-muted-foreground flex">
                         <p>Don't have an account yet?</p>
                         <Link to="/register" className="pl-1 underline text-blue-500 cursor-pointer">Create one</Link>
+                    </div>
+                    <div className="text-red-600">
+                        {errorMessage}
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -81,7 +102,18 @@ export default function Signin() {
                                         <FormMessage />
                                     </FormItem>
                                 )}/>
-                            <Button type="submit" className="w-full">Login</Button>
+                                <Button disabled={loading} type="submit" className="w-full">
+                                {loading ? 
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
+                                        Please wait...
+                                    </>
+                                    :
+                                    <>
+                                        Login
+                                    </>
+                                }
+                            </Button>
                         </form>
                     </Form>
                 </CardContent>
