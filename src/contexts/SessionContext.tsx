@@ -1,6 +1,6 @@
 import { APIError, ErrorCodes, UserData } from "@/models/types";
-import { createContext, useEffect, useMemo, useState } from "react";
-import API from "@/config/axiosConfig";
+import { createContext, useEffect, useMemo, useRef, useState } from "react";
+import { APIProtected, APIUnprotected } from "@/config/axiosConfig";
 import axios from "axios";
 
 interface SessionContextType {
@@ -23,29 +23,38 @@ const SessionContext = createContext<SessionContextType>({
 
 export default function SessionProvider({ children }: { children: React.ReactNode }) {
     const [userData, setUserData] = useState<UserData | null>(null);
-    const [loggedIn, setLoggedIn] = useState<boolean>(false);
+    const [loggedIn, setLoggedIn] = useState<boolean>(true);
+    const firstRender = useRef<boolean>(true);
 
     useEffect(() => {
-        let userData = localStorage.getItem('userData') as UserData | null;
+        let storedUserData = localStorage.getItem('userData') as UserData | null;
 
-        if (userData) {
-            API.get('api/users/me').then((response) => {
-                userData = {
-                    userId: response.data.id,
-                    username: response.data.username
-                };
-                setUserData(userData);
-                setLoggedIn(true);
-            }).catch(() => {
-                localStorage.clear();
-                // window.location.href = "/login";
-            });
+        if (storedUserData) {
+            setUserData(storedUserData);
+        } else {
+            setLoggedIn(false);
         }
     }, []);
 
+    useEffect(() => {
+        if (!firstRender.current || !userData) return;
+        firstRender.current = false;
+
+        APIProtected.get('api/users/me').then((response) => {
+            const userData = {
+                userId: response.data.id,
+                username: response.data.username
+            };
+            setUserData(userData);
+            setLoggedIn(true);
+        }).catch(() => {
+            localStorage.clear();
+        });
+    }, [userData]);
+
     const login = async (username: string, password: string) => {
         try {
-            const response = await API.post('auth/login', {
+            const response = await APIUnprotected.post('auth/login', {
                 username,
                 password
             }, {
@@ -75,7 +84,7 @@ export default function SessionProvider({ children }: { children: React.ReactNod
 
     const signup = async (username: string, email: string, password: string) => {
         try {
-            const response = await API.post('auth/signup', {
+            const response = await APIUnprotected.post('auth/signup', {
                 username,
                 email,
                 password
@@ -109,13 +118,13 @@ export default function SessionProvider({ children }: { children: React.ReactNod
         setLoggedIn(false);
         localStorage.clear();
 
-        API.post('/auth/logout');
+        APIProtected.post('/auth/logout');
         window.location.href = "/login";
     }
 
     const updateUserData = async () => {
         try {
-            const response = await API.get('api/users/me');
+            const response = await APIProtected.get('api/users/me');
             const userData: UserData = {
                 userId: response.data.user_id,
                 username: response.data.susername
@@ -145,7 +154,7 @@ export default function SessionProvider({ children }: { children: React.ReactNod
         signup,
         logout,
         updateUserData
-    }), []);
+    }), [userData, loggedIn]);
 
     return (
         <SessionContext.Provider value={contextValue}>

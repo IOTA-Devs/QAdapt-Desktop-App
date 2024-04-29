@@ -1,5 +1,7 @@
+import SidebarMenu from "./components/custom/sidebar";
 import { Suspense, lazy } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import SessionProvider from "./contexts/SessionContext";
 
 const Signup = lazy(() => import("./pages/signup"));
 const Login = lazy(() => import("./pages/login"));
@@ -17,7 +19,7 @@ export default function App() {
     },
     {
         path: "/",
-        element: <Home/>
+        element: <SidebarMenu isProtected={true}><Home/></SidebarMenu>
     },
     {
         path: "*",
@@ -27,9 +29,11 @@ export default function App() {
 
   return (
     <div className="flex justify-center flex-col min-h-screen">
-      <Suspense>
-        <RouterProvider router={router} />
-      </Suspense>
+      <SessionProvider>
+        <Suspense>
+          <RouterProvider router={router} />
+        </Suspense>
+      </SessionProvider>
     </div>
   );
 }

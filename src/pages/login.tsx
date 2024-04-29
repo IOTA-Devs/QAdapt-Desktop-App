@@ -22,6 +22,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { SessionContext } from "@/contexts/SessionContext";
 import { Loader2 } from "lucide-react";
+import { Navigate } from "react-router-dom";
 
 export default function Login() {
     const [loading, setLoading] = useState<boolean>(false);

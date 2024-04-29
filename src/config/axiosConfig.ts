@@ -16,14 +16,14 @@ let authData: AuthData | null;
 let isRefreshing: boolean = false;
 let requestQueue: RequestQueueObj[] = [];
 
-const API = axios.create({
+const APIProtected = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-const APIRefresh = axios.create({
+const APIUnprotected = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -41,7 +41,7 @@ const processQueue = (error: any = null) => {
     }
 };
 
-API.interceptors.request.use(async (config) => {
+APIProtected.interceptors.request.use(async (config) => {
     const now = Date.now();
     if (!authData || authData.tokenSetAt + authData.tokenExpiresIn <= now) {
         if (isRefreshing) {
@@ -59,9 +59,13 @@ API.interceptors.request.use(async (config) => {
                 return config;
             };
 
-            const response = await APIRefresh.post('/auth/token', {
+            const response = await APIUnprotected.post('/auth/token', {
                 refresh_token: refreshToken,
                 session_id: sessionId
+            }, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             });
 
             authData = {
@@ -87,4 +91,7 @@ API.interceptors.request.use(async (config) => {
     return Promise.reject(err);
 });
 
-export default API;
+export {
+    APIProtected,
+    APIUnprotected
+};
