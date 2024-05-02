@@ -23,3 +23,14 @@ export interface APIError {
     message: string;
     code: ErrorCodes;
 }
+
+export interface SidebarMenuItem {
+    icon: React.ReactNode;
+    label: string;
+    link: string;
+}
+
+export interface SidebarMenuProps {
+    children: React.ReactNode;
+    items: SidebarMenuItem[];
+}

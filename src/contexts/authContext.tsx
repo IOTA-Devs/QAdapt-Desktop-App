@@ -1,30 +1,120 @@
 import { APIError, ErrorCodes, UserData } from "@/models/types";
+import { deleteFromLocalStorage } from "@/util/util.helper";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
-import { APIProtected, APIUnprotected } from "@/config/axiosConfig";
-import axios from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
 
-interface SessionContextType {
-    userData: UserData | null,
+interface AuthContextType {
     loggedIn: boolean
+    userData: UserData | null
     login: (username: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
     signup: (username: string, email: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
     logout: () => void
     updateUserData: () => Promise<{ userData: UserData | null, error: APIError | null }>
 }
 
-const SessionContext = createContext<SessionContextType>({
-    userData: null,
+interface RequestQueueObj {
+    resolve: (value: InternalAxiosRequestConfig<any> | PromiseLike<InternalAxiosRequestConfig<any>>) => void
+    reject: (reason?: any) => void
+    config: InternalAxiosRequestConfig<any>
+}
+
+interface AuthData {
+    accessToken: string
+    tokenExpiresIn: number
+    tokenSetAt: number
+}
+
+const AuthContext = createContext<AuthContextType>({
     loggedIn: false,
+    userData: null,
     login: async () => ({ userData: null, error: null }),
     signup: async () => ({ userData: null, error: null }),
     logout: () => {},
     updateUserData: async () => ({ userData: null, error: null })
 });
 
-export default function SessionProvider({ children }: { children: React.ReactNode }) {
+export default function AuthProvider({ children }: { children: React.ReactNode }) {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [loggedIn, setLoggedIn] = useState<boolean>(true);
     const firstRender = useRef<boolean>(true);
+    const authData = useRef<AuthData | null>(null);
+    
+    const requestQueue: RequestQueueObj[] = [];
+    let isRefreshing: boolean = false;
+
+    const APIProtected = axios.create({
+        baseURL: import.meta.env.VITE_API_BASE_URL,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const APIUnprotected = axios.create({
+        baseURL: import.meta.env.VITE_API_BASE_URL
+    });
+
+    APIProtected.interceptors.request.use(async (config) => {
+        const now = Date.now();
+        
+
+        if (!authData.current || authData.current.tokenSetAt * 1000 + authData.current.tokenExpiresIn <= now) {
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    requestQueue.push({ resolve, reject, config });
+                });           
+            }
+    
+            try {
+                isRefreshing = true;
+                const refreshToken = localStorage.getItem('r_t');
+                const sessionId = localStorage.getItem('s_id');
+                if (!refreshToken || !sessionId) {
+                    isRefreshing = false;
+                    return config;
+                };
+    
+                const response = await APIUnprotected.post('/auth/token', {
+                    refresh_token: refreshToken,
+                    session_id: sessionId
+                }, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+    
+                authData.current = {
+                    accessToken: response.data.access_token,
+                    tokenExpiresIn: response.data.expires_in,
+                    tokenSetAt: Date.now()
+                };
+    
+                localStorage.setItem('r_t', response.data.refresh_token);
+                isRefreshing = false;
+                processQueue();
+            } catch (err) {
+                isRefreshing = false;
+                processQueue(err);
+                window.location.href = "/login";
+                return Promise.reject(err);
+            }
+        }
+    
+        config.headers.Authorization = `Bearer ${authData.current.accessToken}`;
+        return config;
+    }, (err) => {
+        return Promise.reject(err);
+    });
+
+    const processQueue = (error: any = null) => {
+        for (let request of requestQueue) {
+            if (error) {
+                return request.reject(error);   
+            }
+    
+            if (authData.current) request.config.headers.Authorization = `Bearer ${authData.current.accessToken}`;
+            return request.resolve(request.config);
+        }
+    }
 
     useEffect(() => {
         let storedUserData = localStorage.getItem('userData') as UserData | null;
@@ -48,7 +138,7 @@ export default function SessionProvider({ children }: { children: React.ReactNod
             setUserData(userData);
             setLoggedIn(true);
         }).catch(() => {
-            localStorage.clear();
+            deleteFromLocalStorage('userData', 'r_t', 's_id');
         });
     }, [userData]);
 
@@ -69,6 +159,12 @@ export default function SessionProvider({ children }: { children: React.ReactNod
             };
             setUserData(userData);
             setLoggedIn(true);
+
+            authData.current = {
+                accessToken: response.data.access_token,
+                tokenExpiresIn: response.data.expires_in,
+                tokenSetAt: Date.now()
+            };
             localStorage.setItem('userData', JSON.stringify(userData));
             localStorage.setItem('r_t', response.data.refresh_token);
             localStorage.setItem('s_id', response.data.session_id);
@@ -98,8 +194,14 @@ export default function SessionProvider({ children }: { children: React.ReactNod
                 userId: response.data.user.user_id,
                 username: response.data.user.username
             };
+            authData.current = {
+                accessToken: response.data.access_token,
+                tokenExpiresIn: response.data.expires_in,
+                tokenSetAt: Date.now()
+            };
             setUserData(userData);
             setLoggedIn(true);
+
             localStorage.setItem('userData', JSON.stringify(userData));
             localStorage.setItem('r_t', response.data.refresh_token);
             localStorage.setItem('s_id', response.data.session_id);
@@ -114,12 +216,12 @@ export default function SessionProvider({ children }: { children: React.ReactNod
     }
 
     const logout = () => {
-        setUserData(null);
-        setLoggedIn(false);
-        localStorage.clear();
-
-        APIProtected.post('/auth/logout');
-        window.location.href = "/login";
+        APIProtected.post('/auth/logout').then(() => {
+            setUserData(null);
+            setLoggedIn(false);
+            authData.current = null;
+            deleteFromLocalStorage('userData', 'r_t', 's_id');
+        });   
     }
 
     const updateUserData = async () => {
@@ -135,7 +237,7 @@ export default function SessionProvider({ children }: { children: React.ReactNod
 
             return { userData: userData, error: null };
         } catch (err) {
-            localStorage.clear();
+            deleteFromLocalStorage('userData', 'r_t', 's_id');
             setUserData(null);
             setLoggedIn(false);
 
@@ -157,12 +259,10 @@ export default function SessionProvider({ children }: { children: React.ReactNod
     }), [userData, loggedIn]);
 
     return (
-        <SessionContext.Provider value={contextValue}>
+        <AuthContext.Provider value={contextValue}>
             {children}
-        </SessionContext.Provider>
+        </AuthContext.Provider>
     );
 }
 
-export {
-    SessionContext
-}
+export { AuthContext };

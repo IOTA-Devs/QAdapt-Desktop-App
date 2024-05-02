@@ -1,4 +1,4 @@
-import { set, z } from "zod";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -20,14 +20,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
-import { SessionContext } from "@/contexts/SessionContext";
+import { AuthContext } from "@/contexts/authContext";
 import { Loader2 } from "lucide-react";
 import { Navigate } from "react-router-dom";
 
 export default function Login() {
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
-    const { login } = useContext(SessionContext);
+    const { login, loggedIn } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const loginFormSchema = z.object({
@@ -60,6 +60,10 @@ export default function Login() {
         }
 
         navigate("/");
+    }
+
+    if (loggedIn) {
+        return <Navigate to="/" />;
     }
 
     return (

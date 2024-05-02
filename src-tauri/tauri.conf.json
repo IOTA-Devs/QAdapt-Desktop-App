@@ -19,9 +19,11 @@
     },
     "windows": [
       {
-        "title": "qadapt-desktop-app",
-        "width": 800,
-        "height": 600
+        "title": "QAdapt",
+        "width": 1000,
+        "height": 600,
+        "minWidth": 600,
+        "minHeight": 400
       }
     ],
     "security": {

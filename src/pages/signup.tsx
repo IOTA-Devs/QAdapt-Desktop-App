@@ -21,14 +21,14 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { Loader2 } from "lucide-react"
-import { SessionContext } from "@/contexts/SessionContext";
+import { AuthContext } from "@/contexts/authContext";
 import { useNavigate } from "react-router-dom";
 import { ErrorCodes } from "@/models/types";
 
 export default function SingupForm() {
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
-    const { signup } = useContext(SessionContext);
+    const { signup } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const signupFormSchema = z.object({

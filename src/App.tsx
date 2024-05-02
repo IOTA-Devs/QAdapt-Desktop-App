@@ -1,11 +1,52 @@
 import SidebarMenu from "./components/custom/sidebar";
-import { Suspense, lazy } from "react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import SessionProvider from "./contexts/SessionContext";
+import { Suspense, lazy, useContext } from "react";
+import { Navigate, Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import ThemeProvider from "./contexts/themeContext";
+import { LayoutDashboard, LayoutList, Group } from "lucide-react";
+import { AuthContext } from "./contexts/authContext";
+import AuthProvider from "./contexts/authContext";
 
 const Signup = lazy(() => import("./pages/signup"));
 const Login = lazy(() => import("./pages/login"));
-const Home = lazy(() => import("./pages/home"));
+const Dashboard = lazy(() => import("./pages/dashboard"));
+const Collections = lazy(() => import("./pages/collections"));
+const Reports = lazy(() => import("./pages/reports"));
+
+const items = [
+  {
+    icon: <LayoutDashboard className="mr-2 h-4 w-4"/>,
+    label: "Dashboard",
+    link: "/"
+  },
+  {
+    icon: <Group className="mr-2 h-4 w-4"/>,
+    label: "Collections",
+    link: "/collections"
+  },
+  {
+    icon: <LayoutList className="mr-2 h-4 w-4"/>,
+    label: "Reports",
+    link: "/reports"
+  }
+];
+
+function Layout() {
+  return (
+    <SidebarMenu items={items}>
+      <Suspense>
+        <div className="p-5 w-full overflow-y-auto">
+          <Outlet/>
+        </div>
+      </Suspense>
+    </SidebarMenu>
+  );
+};
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { loggedIn } = useContext(AuthContext);
+
+  return loggedIn ? children : <Navigate to="/login"/>;
+}
 
 export default function App() {
   const router = createBrowserRouter([
@@ -19,21 +60,28 @@ export default function App() {
     },
     {
         path: "/",
-        element: <SidebarMenu isProtected={true}><Home/></SidebarMenu>
+        element: <Layout/>,
+        children: [
+            { path: "/", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
+            { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
+            { path: "/reports", element: <ProtectedRoute><Reports/></ProtectedRoute> },
+        ]
     },
     {
         path: "*",
         element: <Login/>
-    }
+    },
   ]);
 
   return (
     <div className="flex justify-center flex-col min-h-screen">
-      <SessionProvider>
-        <Suspense>
-          <RouterProvider router={router} />
-        </Suspense>
-      </SessionProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <Suspense>
+            <RouterProvider router={router} />
+          </Suspense>
+        </ThemeProvider>
+      </AuthProvider>
     </div>
   );
 }
