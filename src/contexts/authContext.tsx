@@ -10,6 +10,8 @@ interface AuthContextType {
     signup: (username: string, email: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
     logout: () => void
     updateUserData: () => Promise<{ userData: UserData | null, error: APIError | null }>
+	APIProtected: AxiosInstance
+	APIUnprotected: AxiosInstance
 }
 
 interface RequestQueueObj {
@@ -30,7 +32,9 @@ const AuthContext = createContext<AuthContextType>({
     login: async () => ({ userData: null, error: null }),
     signup: async () => ({ userData: null, error: null }),
     logout: () => {},
-    updateUserData: async () => ({ userData: null, error: null })
+    updateUserData: async () => ({ userData: null, error: null }),
+	APIProtected: axios.create(),
+	APIUnprotected: axios.create()
 });
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -255,7 +259,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         login,
         signup,
         logout,
-        updateUserData
+        updateUserData,
+		APIProtected,
+		APIUnprotected
     }), [userData, loggedIn]);
 
     return (
