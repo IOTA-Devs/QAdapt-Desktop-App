@@ -1,6 +1,8 @@
 export interface UserData {
     userId: string;
     username: string;
+    fullName: string;
+    email: string;
 }
 
 export enum ErrorCodes {

@@ -40,6 +40,9 @@ export default function SingupForm() {
             .string()
             .min(1, { message: "Username is required" })
             .max(32, { message: "Username can't be longer than 32 characters." }),
+        fullName: z
+            .string()
+            .max(150, { message: "Full name can't be longer than 150 characters." }),
         password: z
             .string()
             .min(1, { message: "Password is required." })
@@ -55,6 +58,7 @@ export default function SingupForm() {
         defaultValues: {
             email: "",
             username: "",
+            fullName: "",
             password: "",
             confirmPassword: ""
         }
@@ -132,6 +136,19 @@ export default function SingupForm() {
                                             </FormControl>
                                         <FormMessage />
                                         <FormDescription>This is how others will see you.</FormDescription>
+                                    </FormItem>
+                                )}/>
+                            <FormField
+                                control={form.control} 
+                                name="fullName"
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Your full name" {...field}/>
+                                            </FormControl>
+                                        <FormMessage />
+                                        <FormDescription>Optinal</FormDescription>
                                     </FormItem>
                                 )}/>
                             <FormField

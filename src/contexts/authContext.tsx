@@ -137,7 +137,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         APIProtected.get('api/users/me').then((response) => {
             const userData = {
                 userId: response.data.id,
-                username: response.data.username
+                username: response.data.username,
+                fullName: response.data.full_name,
+                email: response.data.email
             };
             setUserData(userData);
             setLoggedIn(true);
@@ -159,7 +161,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
             const userData = {
                 userId: response.data.user.user_id,
-                username: response.data.user.username
+                username: response.data.user.username,
+                fullName: response.data.user.full_name,
+                email: response.data.user.email
             };
             setUserData(userData);
             setLoggedIn(true);
@@ -196,7 +200,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
             const userData = {
                 userId: response.data.user.user_id,
-                username: response.data.user.username
+                username: response.data.user.username,
+                fullName: response.data.user.full_name,
+                email: response.data.user.email
             };
             authData.current = {
                 accessToken: response.data.access_token,
@@ -233,7 +239,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             const response = await APIProtected.get('api/users/me');
             const userData: UserData = {
                 userId: response.data.user_id,
-                username: response.data.susername
+                username: response.data.susername,
+                fullName: response.data.full_name,
+                email: response.data.email
             };
 
             localStorage.setItem('userData', JSON.stringify(userData));
