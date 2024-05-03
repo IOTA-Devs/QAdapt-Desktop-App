@@ -1,7 +1,7 @@
 import { APIError, ErrorCodes, UserData } from "@/models/types";
 import { deleteFromLocalStorage } from "@/util/util.helper";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 interface AuthContextType {
     loggedIn: boolean
