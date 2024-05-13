@@ -2,7 +2,7 @@ import { AuthContext } from "@/contexts/authContext";
 import { useContext } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MoreHorizontal, User, LogOut, Settings, Info, SunMoon } from "lucide-react"
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { 
     DropdownMenu, 
     DropdownMenuTrigger, 
@@ -55,10 +55,12 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                             <DropdownMenuContent>
                                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <User className="mr-2 h-4 w-4" />
-                                    <span>Profile</span>
-                                </DropdownMenuItem>
+                                <Link to="/profile">
+                                    <DropdownMenuItem>
+                                        <User className="mr-2 h-4 w-4" />
+                                        <span>Profile</span>
+                                    </DropdownMenuItem>
+                                </Link>
                                 <DropdownMenuItem>
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Settings</span>

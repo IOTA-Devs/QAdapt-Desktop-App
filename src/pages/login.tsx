@@ -7,15 +7,14 @@ import {
     FormField,
     FormItem,
     FormLabel,
-    FormMessage,
-    FormDescription
-} from "@/components/ui/form"
+    FormMessage
+} from "@/components/ui/form";
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -92,7 +91,6 @@ export default function Login() {
                                                 <Input placeholder="Enter your email here" {...field}/>
                                             </FormControl>
                                         <FormMessage />
-                                        <FormDescription></FormDescription>
                                     </FormItem>
                                 )}/>
                             <FormField

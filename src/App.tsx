@@ -11,12 +11,13 @@ const Login = lazy(() => import("./pages/login"));
 const Dashboard = lazy(() => import("./pages/dashboard"));
 const Collections = lazy(() => import("./pages/collections"));
 const Reports = lazy(() => import("./pages/reports"));
+const Profile = lazy(() => import("./pages/profile"));
 
 const items = [
   {
     icon: <LayoutDashboard className="mr-2 h-4 w-4"/>,
     label: "Dashboard",
-    link: "/"
+    link: "/home"
   },
   {
     icon: <Group className="mr-2 h-4 w-4"/>,
@@ -62,9 +63,11 @@ export default function App() {
         path: "/",
         element: <Layout/>,
         children: [
-            { path: "/", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
+            { path: "/", element: <Navigate to="/home"/>},
+            { path: "/home", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
             { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
             { path: "/reports", element: <ProtectedRoute><Reports/></ProtectedRoute> },
+            { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> }
         ]
     },
     {
