@@ -45,7 +45,7 @@ export default function SingupForm() {
             .max(150, { message: "Full name can't be longer than 150 characters." }),
         password: z
             .string()
-            .min(1, { message: "Password is required." })
+            .min(8, { message: "Password must be at least 8 characters long." })
             .max(50, { message: "Password can't be longer than 50 characters." }),
         confirmPassword: z
             .string()
