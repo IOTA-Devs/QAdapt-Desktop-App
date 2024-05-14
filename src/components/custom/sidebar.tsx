@@ -1,7 +1,7 @@
 import { AuthContext } from "@/contexts/authContext";
 import { useContext } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MoreHorizontal, User, LogOut, Settings, Info, SunMoon } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MoreHorizontal, User, LogOut, Info, SunMoon } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { 
     DropdownMenu, 
@@ -16,15 +16,15 @@ import {
     DropdownMenuSubContent 
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/contexts/themeContext";
-import { SidebarMenuProps } from "@/models/types";
+import { SidebarMenuProps } from "@/types/types";
 
 export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
     const { userData, logout } = useContext(AuthContext);
-    const { setTheme } = useTheme();
+    const { setTheme, theme } = useTheme();
   
     return (
       <div className="flex flex-row">
-        <aside className="h-screen w-72">
+        <aside className="h-screen w-72 flex-shrink-0">
             <nav className="h-full flex flex-col border-r shadow-sm justify-between">
                 <div>
                     <div className="flex flex-row gap-2 items-center p-3">
@@ -61,10 +61,6 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                                         <span>Profile</span>
                                     </DropdownMenuItem>
                                 </Link>
-                                <DropdownMenuItem>
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    <span>Settings</span>
-                                </DropdownMenuItem>
                                 <DropdownMenuSub>
                                     <DropdownMenuSubTrigger>
                                         <SunMoon className="mr-2 h-4 w-4" />
@@ -72,9 +68,9 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                                     </DropdownMenuSubTrigger>
                                     <DropdownMenuPortal>
                                         <DropdownMenuSubContent>
-                                            <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+                                            <DropdownMenuItem className={`${theme === 'dark' && 'text-primary font-semibold'}`} onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+                                            <DropdownMenuItem className={`${theme === 'light' && 'text-primary font-semibold'}`} onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+                                            <DropdownMenuItem className={`${theme === 'system' && 'text-primary font-semibold'}`} onClick={() => setTheme("system")}>System</DropdownMenuItem>
                                         </DropdownMenuSubContent>
                                     </DropdownMenuPortal>
                                 </DropdownMenuSub>
@@ -93,7 +89,7 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                 </div>
             </nav>
         </aside>
-        <div>
+        <div className="flex-shrink-1 w-full xl:mx-52 lg:mx-20">
           {children}
         </div>
       </div>

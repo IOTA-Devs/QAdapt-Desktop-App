@@ -23,7 +23,7 @@ import { useState, useContext } from "react";
 import { Loader2 } from "lucide-react"
 import { AuthContext } from "@/contexts/authContext";
 import { useNavigate } from "react-router-dom";
-import { ErrorCodes } from "@/models/types";
+import { ErrorCodes } from "@/types/types";
 
 export default function SingupForm() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -82,6 +82,7 @@ export default function SingupForm() {
         
         const { error } = await signup(values.username, values.email, values.password);
         setLoading(false);
+
         if (error) {
             if (error.code === ErrorCodes.RESOURCE_CONFLICT) {
                 return form.setError("email", {

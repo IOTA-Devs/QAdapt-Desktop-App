@@ -1,4 +1,4 @@
-import { APIError, ErrorCodes, UserData } from "@/models/types";
+import { APIError, ErrorCodes, UserData } from "@/types/types";
 import { deleteFromLocalStorage } from "@/util/util.helper";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
@@ -135,12 +135,14 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         firstRender.current = false;
 
         APIProtected.get('api/users/me').then((response) => {
+
             const userData = {
                 userId: response.data.id,
                 username: response.data.username,
                 fullName: response.data.full_name,
                 email: response.data.email
             };
+            localStorage.setItem('userData', JSON.stringify(userData));
             setUserData(userData);
             setLoggedIn(true);
         }).catch(() => {
@@ -180,7 +182,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             return { userData, error: null };
         } catch (err) {
             if (axios.isAxiosError(err)) {
-                return { userData: null, error: { message: err.response?.data.detail.message, code: err.response?.data.detail.code } as APIError };
+                return { 
+                    userData: null, 
+                    error: { 
+                        message: err.response ? err.response.data.detail.message :  "Failed to login. Please try again", 
+                        code: err.response ? err.response.data.detail.code : ErrorCodes.AUTHENTICATION_ERROR 
+                    } as APIError 
+                };
             }
             return { userData: null, error: { message: "Failed to login. Please try again", code: ErrorCodes.AUTHENTICATION_ERROR } as APIError };
         }
@@ -219,7 +227,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             return { userData, error: null };
         } catch (err) {
             if (axios.isAxiosError(err)) {
-                return { userData: null, error: { message: err.response?.data.detail.message, code: err.response?.data.detail.code } as APIError };
+                return { 
+                    userData: null, 
+                    error: { 
+                        message: err.response ? err.response.data.detail.message : "Failed account creation. Please try again later.", 
+                        code: err.response ? err.response.data.detail.code : ErrorCodes.AUTHENTICATION_ERROR 
+                    } as APIError 
+                };
             }
             return { userData: null, error: { message: "Failed account creation. Please try again later.", code: ErrorCodes.AUTHENTICATION_ERROR } as APIError };
         }
@@ -239,7 +253,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             const response = await APIProtected.get('api/users/me');
             const userData: UserData = {
                 userId: response.data.user_id,
-                username: response.data.susername,
+                username: response.data.username,
                 fullName: response.data.full_name,
                 email: response.data.email
             };

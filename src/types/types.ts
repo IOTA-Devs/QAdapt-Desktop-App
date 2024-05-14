@@ -36,3 +36,11 @@ export interface SidebarMenuProps {
     children: React.ReactNode;
     items: SidebarMenuItem[];
 }
+
+export type PersonalAccessToken = {
+    userId: number
+    name: string
+    expiresAt: Date
+    createdAt: Date
+    status: 'active' | 'expired'
+}

@@ -5,6 +5,7 @@ import ThemeProvider from "./contexts/themeContext";
 import { LayoutDashboard, LayoutList, Group } from "lucide-react";
 import { AuthContext } from "./contexts/authContext";
 import AuthProvider from "./contexts/authContext";
+import { Toaster } from "@/components/ui/sonner";
 
 const Signup = lazy(() => import("./pages/signup"));
 const Login = lazy(() => import("./pages/login"));
@@ -63,7 +64,7 @@ export default function App() {
         path: "/",
         element: <Layout/>,
         children: [
-            { path: "/", element: <Navigate to="/home"/>},
+            { path: "/", element:<ProtectedRoute><Navigate to="/home"/></ProtectedRoute>},
             { path: "/home", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
             { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
             { path: "/reports", element: <ProtectedRoute><Reports/></ProtectedRoute> },
@@ -83,6 +84,12 @@ export default function App() {
           <Suspense>
             <RouterProvider router={router} />
           </Suspense>
+          <Toaster 
+          expand={true} 
+          richColors 
+          position="top-right" 
+          closeButton
+          toastOptions={{}}/>
         </ThemeProvider>
       </AuthProvider>
     </div>
