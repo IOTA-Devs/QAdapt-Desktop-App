@@ -29,7 +29,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "../ui/label";
 
 function DeleteAccountPasswordConfirm({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const passwordFormSchema = z.object({
