@@ -24,7 +24,7 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
   
     return (
       <div className="flex flex-row">
-        <aside className="h-screen w-72 flex-shrink-0">
+        <aside className="h-screen w-72 flex-shrink-0 top-0 sticky">
             <nav className="h-full flex flex-col border-r shadow-sm justify-between">
                 <div>
                     <div className="flex flex-row gap-2 items-center p-3">
@@ -89,7 +89,7 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                 </div>
             </nav>
         </aside>
-        <div className="flex-shrink-1 w-full xl:mx-52 lg:mx-20">
+        <div className="flex-shrink-1 w-full xl:mx-52 lg:mx-20 overflow-y-auto">
           {children}
         </div>
       </div>

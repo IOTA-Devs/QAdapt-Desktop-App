@@ -40,7 +40,7 @@ export interface SidebarMenuProps {
 export type PersonalAccessToken = {
     userId: number
     name: string
-    expiresAt: Date
-    createdAt: Date
-    status: 'active' | 'expired'
+    expiresAt: string
+    createdAt: string
+    status: 'Active' | 'Expired'
 }

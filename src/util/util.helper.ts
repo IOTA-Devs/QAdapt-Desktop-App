@@ -1,3 +1,9 @@
+
+/**
+ * 
+ * @param keys 
+ * Deletes the items from the local storage
+ */
 export const deleteFromLocalStorage = (...keys: string[]) => {
     const items = Object.keys(localStorage);
 
@@ -6,4 +12,14 @@ export const deleteFromLocalStorage = (...keys: string[]) => {
             localStorage.removeItem(key);
         }
     }
+}
+
+/**
+ * 
+ * @param date 
+ * @returns Formated date as YYYY-MM-DD
+ * Formats the date to YYYY-MM-DD
+ */
+export const getFormatedDate = (date: Date): string => {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }

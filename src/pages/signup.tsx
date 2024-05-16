@@ -17,13 +17,12 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
-import { Loader2 } from "lucide-react"
 import { AuthContext } from "@/contexts/authContext";
 import { useNavigate } from "react-router-dom";
 import { ErrorCodes } from "@/types/types";
+import ButtonLoader from "@/components/custom/button-loader";
 
 export default function SingupForm() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -176,18 +175,19 @@ export default function SingupForm() {
                                         <FormMessage />
                                     </FormItem>
                                 )}/>
-                            <Button disabled={loading} type="submit" className="w-full">
-                                {loading ? 
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
-                                        Please wait...
-                                    </>
-                                    :
-                                    <>
-                                        Sign up
-                                    </>
-                                }
-                            </Button>
+                            <ButtonLoader 
+                            loading={loading} 
+                            disabled={loading} 
+                            type="submit"
+                            className="w-full"
+                            loadingElement={
+                                <>
+                                    Signing up...
+                                </>
+                            }
+                            >
+                                Sign Up
+                            </ButtonLoader>
                         </form>
                     </Form>
                 </CardContent>

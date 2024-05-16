@@ -16,12 +16,11 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "@/contexts/authContext";
-import { Loader2 } from "lucide-react";
 import { Navigate } from "react-router-dom";
+import ButtonLoader from "@/components/custom/button-loader";
 
 export default function Login() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -105,18 +104,19 @@ export default function Login() {
                                         <FormMessage />
                                     </FormItem>
                                 )}/>
-                                <Button disabled={loading} type="submit" className="w-full">
-                                {loading ? 
+                                <ButtonLoader 
+                                loading={loading} 
+                                disabled={loading} 
+                                type="submit" 
+                                className="w-full" 
+                                loadingElement={
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
-                                        Please wait...
-                                    </>
-                                    :
-                                    <>
-                                        Login
+                                        Logging in...
                                     </>
                                 }
-                            </Button>
+                                >
+                                    Login
+                                </ButtonLoader>
                         </form>
                     </Form>
                 </CardContent>
