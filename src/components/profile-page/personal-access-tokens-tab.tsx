@@ -8,7 +8,7 @@ import { DataTable } from "../custom/data-table";
 import { cn } from "@/lib/utils"
 import { addDays, format } from "date-fns";
 import { Input } from "../ui/input";
-import { CalendarIcon, Plus, RotateCcw } from "lucide-react";
+import { CalendarIcon, Plus, RotateCcw, Copy } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -185,6 +185,8 @@ export default function PersonalAccessTokensTab() {
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedRows, setSelectedRows] = useState<PersonalAccessToken[]>([]);
     const [deletTokensModalOpen, setDeleteTokensModalOpen] = useState<boolean>(false);
+    const [createdToken, setCreeatedToken] = useState<string>("");
+    const [copyTokenModalOpen, setCopyTokenModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
         fetchTokens();
@@ -298,8 +300,17 @@ export default function PersonalAccessTokensTab() {
             }
         });
         
-        await response;
+        const responseToken = await response;
+        setCreeatedToken(responseToken.data.token);
+        setCopyTokenModalOpen(true);
         fetchTokens();
+    }
+
+    const copyTokenToClipboard = () => {
+        if (!createdToken.length) return;
+
+        navigator.clipboard.writeText(createdToken);
+        toast.success("Token copied to clipboard");
     }
 
     return (
@@ -327,6 +338,27 @@ export default function PersonalAccessTokensTab() {
                     <Button variant="ghost" onClick={fetchTokens} disabled={loading}>
                         <RotateCcw></RotateCcw>
                     </Button>
+
+                    <Dialog open={copyTokenModalOpen} onOpenChange={(open) => setCopyTokenModalOpen(open)}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Your Personal Token is ready!</DialogTitle>
+                                <DialogDescription>
+                                    Your personal API Access toekn has been generated. Make sure to copy it and store it in a safe place.
+                                    Once this modal is close your token cannot be copied again.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="flex gap-2">
+                                <Input value={createdToken} readOnly={true}></Input>
+                                <Button onClick={copyTokenToClipboard} variant="secondary"><Copy /></Button>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="default" onClick={() => setCreeatedToken("")}>Confirm</Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
             <DataTable 
