@@ -13,6 +13,7 @@ const Dashboard = lazy(() => import("./pages/dashboard"));
 const Collections = lazy(() => import("./pages/collections"));
 const Reports = lazy(() => import("./pages/reports"));
 const Profile = lazy(() => import("./pages/profile"));
+const Help = lazy(() => import("./pages/help"));
 
 const items = [
   {
@@ -68,7 +69,8 @@ export default function App() {
             { path: "/home", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
             { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
             { path: "/reports", element: <ProtectedRoute><Reports/></ProtectedRoute> },
-            { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> }
+            { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> },
+            { path: "help", element: <ProtectedRoute><Help/></ProtectedRoute>}
         ]
     },
     {

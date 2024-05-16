@@ -79,7 +79,7 @@ export default function SingupForm() {
             });
         }
         
-        const { error } = await signup(values.username, values.email, values.password);
+        const { error } = await signup(values.username, values.fullName, values.email, values.password);
         setLoading(false);
 
         if (error) {

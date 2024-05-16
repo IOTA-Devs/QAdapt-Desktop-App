@@ -7,7 +7,7 @@ interface AuthContextType {
     loggedIn: boolean
     userData: UserData | null
     login: (username: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
-    signup: (username: string, email: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
+    signup: (username: string, fullName: string, email: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
     logout: () => void
     updateUserData: () => Promise<{ userData: UserData | null, error: APIError | null }>
 	APIProtected: AxiosInstance
@@ -74,7 +74,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 const sessionId = localStorage.getItem('s_id');
                 if (!refreshToken || !sessionId) {
                     isRefreshing = false;
-                    return config;
                 };
     
                 const response = await APIUnprotected.post('/auth/token', {
@@ -121,10 +120,16 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }
 
     useEffect(() => {
-        let storedUserData = localStorage.getItem('userData') as UserData | null;
+        let storedUserData = localStorage.getItem('userData') as string | null;
 
         if (storedUserData) {
-            setUserData(storedUserData);
+            let localStorageUserData;
+            try {
+                localStorageUserData = JSON.parse(storedUserData);
+                setUserData(localStorageUserData);
+            } catch {
+                deleteFromLocalStorage('userData', 'r_t', 's_id');
+            }
         } else {
             setLoggedIn(false);
         }
@@ -135,7 +140,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         firstRender.current = false;
 
         APIProtected.get('api/users/me').then((response) => {
-
             const userData = {
                 userId: response.data.id,
                 username: response.data.username,
@@ -147,6 +151,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             setLoggedIn(true);
         }).catch(() => {
             deleteFromLocalStorage('userData', 'r_t', 's_id');
+
+            setUserData(null);
+            setLoggedIn(false);
         });
     }, [userData]);
 
@@ -194,12 +201,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         }
     }
 
-    const signup = async (username: string, email: string, password: string) => {
+    const signup = async (username: string, fullName: string, email: string, password: string) => {
         try {
             const response = await APIUnprotected.post('auth/signup', {
                 username,
                 email,
-                password
+                password,
+                full_name: fullName
             }, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'

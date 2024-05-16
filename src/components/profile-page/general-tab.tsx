@@ -19,6 +19,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
     Dialog,
@@ -226,7 +227,9 @@ export default function GeneralTab() {
                 <h2 className="text-3xl font-bold">Account Removal</h2>
                 <p className="text-muted-foreground pt-1">This will delete your account and all data associated with it. This action cannot be undone.</p>
                 <AlertDialog open={confirmDeleteOpen} onOpenChange={(open) => setConfirmDeleteOpen(open)}>
-                    <Button className="mt-1" variant="destructive" onClick={() => setConfirmDeleteOpen(true)}>Delete Account</Button>
+                    <AlertDialogTrigger asChild>
+                        <Button className="mt-1" variant="destructive">Delete Account</Button>
+                    </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

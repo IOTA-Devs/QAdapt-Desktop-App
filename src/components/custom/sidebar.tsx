@@ -21,7 +21,7 @@ import { SidebarMenuProps } from "@/types/types";
 export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
     const { userData, logout } = useContext(AuthContext);
     const { setTheme, theme } = useTheme();
-  
+
     return (
       <div className="flex flex-row">
         <aside className="h-screen w-72 flex-shrink-0 top-0 sticky">
@@ -74,10 +74,12 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                                         </DropdownMenuSubContent>
                                     </DropdownMenuPortal>
                                 </DropdownMenuSub>
-                                <DropdownMenuItem>
-                                    <Info className="mr-2 h-4 w-4" />
-                                    <span>Help</span>
-                                </DropdownMenuItem>
+                                <Link to="/help">
+                                    <DropdownMenuItem>
+                                        <Info className="mr-2 h-4 w-4" />
+                                        <span>Help</span>
+                                    </DropdownMenuItem>
+                                </Link>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={logout}>
                                     <LogOut className="mr-2 h-4 w-4" />
