@@ -11,7 +11,7 @@ const Signup = lazy(() => import("./pages/signup"));
 const Login = lazy(() => import("./pages/login"));
 const Dashboard = lazy(() => import("./pages/dashboard"));
 const Collections = lazy(() => import("./pages/collections"));
-const Reports = lazy(() => import("./pages/reports"));
+const AllTests = lazy(() => import("./pages/all-tests"));
 const Profile = lazy(() => import("./pages/profile"));
 const Help = lazy(() => import("./pages/help"));
 
@@ -28,8 +28,8 @@ const items = [
   },
   {
     icon: <LayoutList className="mr-2 h-4 w-4"/>,
-    label: "Reports",
-    link: "/reports"
+    label: "Tests",
+    link: "/tests"
   }
 ];
 
@@ -68,7 +68,7 @@ export default function App() {
             { path: "/", element:<ProtectedRoute><Navigate to="/home"/></ProtectedRoute>},
             { path: "/home", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
             { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
-            { path: "/reports", element: <ProtectedRoute><Reports/></ProtectedRoute> },
+            { path: "/tests", element: <ProtectedRoute><AllTests/></ProtectedRoute> },
             { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> },
             { path: "help", element: <ProtectedRoute><Help/></ProtectedRoute>}
         ]
