@@ -59,9 +59,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
     APIProtected.interceptors.request.use(async (config) => {
         const now = Date.now();
-        
-
-        if (!authData.current || authData.current.tokenSetAt * 1000 + authData.current.tokenExpiresIn <= now) {
+        if (!authData.current || authData.current.tokenSetAt / 1000 + authData.current.tokenExpiresIn - 1 <= now / 1000) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     requestQueue.push({ resolve, reject, config });
