@@ -138,7 +138,7 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
-                onClick={() => table.setPageIndex(currentPage)}>{currentPage}</PaginationLink>
+                onClick={() => table.setPageIndex(currentPage - 1)}>{currentPage}</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
@@ -252,7 +252,7 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
           <div className="flex gap-2 items-center w-full">
               <span>Showing</span>
               <Select defaultValue={countPerPage.toString()} onValueChange={(value: string) => changeCountPerPage(parseInt(value))}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[70px]">
                   <SelectValue placeholder="Items" />
                 </SelectTrigger>
                 <SelectContent>
