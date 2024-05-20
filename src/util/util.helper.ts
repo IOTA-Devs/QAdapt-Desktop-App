@@ -50,9 +50,8 @@ export const getRelativeTime = (date: Date): string => {
         if (time[key] > 0) {
             relativeIdentifier = key;
             relativeTime = time[key];
-
             if (time[key] <= 1) {
-                relativeIdentifier.substring(0, relativeIdentifier.length - 1);
+                relativeIdentifier = relativeIdentifier.substring(0, relativeIdentifier.length - 1);
             }
         }
     });
