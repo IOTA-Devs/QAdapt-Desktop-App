@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useContext, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Undo } from "lucide-react";
+import { Undo, Camera } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Form } from "../ui/form";
 import { toast } from "sonner";
@@ -29,7 +29,9 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
+import UploadImage from "../custom/upload-image";
 
 function DeleteAccountPasswordConfirm({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const passwordFormSchema = z.object({
@@ -202,20 +204,55 @@ function ChangeProfileData() {
 }
 
 export default function GeneralTab() {
-    const { userData } = useContext(AuthContext);
+    const { userData, APIProtected, updateUserData } = useContext(AuthContext);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState<boolean>(false);
     const [confirmPasswordOpen, setConfirmPasswordOpen] = useState<boolean>(false);
+    const [avatarUploadOpen, setAvatarUploadOpen] = useState<boolean>(false);
+
+    const uploadAvatar = async (image: Blob) => {
+        const toastId = toast.loading("Uploading your profile picture");
+        
+        const formData = new FormData();
+        formData.append('avatar', image);
+        setAvatarUploadOpen(false);
+
+        APIProtected.post('api/profile/upload_avatar', formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }).then(() => {
+            updateUserData();
+            toast.dismiss(toastId);
+            toast.success("Profile picture uploaded successfully");
+        }).catch(() => {
+            toast.dismiss(toastId);
+            toast.error("Failed to upload profile picture");
+        });
+    }
 
     return (
         <>
             <div className="flex items-center gap-5 p-6">
                 <Avatar className="size-40 text-3xl">
-                    <AvatarImage alt="profile-picture"/>
+                    <AvatarImage src={userData && userData.avatarURL || ""} alt="profile-picture"/>
                     <AvatarFallback>{userData && userData.username?.[0]}</AvatarFallback>
                 </Avatar>
                 <div>
                     <h3 className="text-2xl font-semibold">{userData?.username}</h3>
                     <p className="text-muted-foreground">{userData?.email}</p>
+                </div>
+                <div className="ml-auto">
+                    <Dialog open={avatarUploadOpen} onOpenChange={(value: boolean) => setAvatarUploadOpen(value)}>
+                        <DialogTrigger asChild>
+                            <Button><Camera /></Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Upload your Avatar</DialogTitle>
+                            </DialogHeader>
+                            <UploadImage onCrop={uploadAvatar} aspectRatio={1} height="50vh" maxImageSizeInMb={8}/>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 

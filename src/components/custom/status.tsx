@@ -4,11 +4,10 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { StatusComponentTypes } from "@/types/types";
 
-type Status = "danger" | "warning" | "caution" | "ok" | "info" | "unavailable"
-
-export default function Status({ status, message }: { status: Status, message: string }) {
-    const getStatusColor = (status: Status) => {
+export default function Status({ status, message }: { status: StatusComponentTypes, message: string }) {
+    const getStatusColor = (status: StatusComponentTypes) => {
         const colorStatusToHexMap = {
             danger: "#FF3838",
             warning: "#FFB302",

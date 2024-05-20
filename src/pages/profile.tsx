@@ -11,7 +11,6 @@ import ChangePasswordTab from "@/components/profile-page/change-password-tab";
 import PersonalAccessTokensTab from "@/components/profile-page/personal-access-tokens-tab";
 
 export default function Profile() {
-
     return (
         <>
             <h2 className="text-3xl py-5 font-bold">My Profile</h2>

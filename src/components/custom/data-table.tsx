@@ -3,6 +3,7 @@ import {
     flexRender,
     getCoreRowModel,
     useReactTable,
+    getPaginationRowModel
 } from "@tanstack/react-table";
 import {
     Table,
@@ -12,26 +13,49 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   noResultsMsg: string
   onSelectRows?: (rows: TData[]) => void
+  fetchData?: (countPerPage: number) => void
   loading?: boolean
 }
 
-export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelectRows, loading = false }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelectRows, fetchData, loading = false }: DataTableProps<TData, TValue>) {
+  const [countPerPage, setCountPerPage] = useState<number>(10);
+  const canFetch = useRef<boolean>(true);
+  const page = useRef<number>(0);
+
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   useEffect(() => {
     const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
+    canFetch.current = true;
 
     if (onSelectRows) {
       onSelectRows(selectedRows);
@@ -39,58 +63,228 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
   }, [table.getSelectedRowModel().rows]);
 
   useEffect(() => {
+    setTimeout(() => {
+      table.setPageIndex(page.current);
+    }, 0);
+    canFetch.current = true;
+
     table.resetRowSelection();
-  }, [table.getRowCount()]);
+  }, [data]);
+
+  useEffect(() => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+    
+    page.current = currentPage;
+    if (currentPage + 5 >= totalPages && fetchData && canFetch.current) {
+      fetchData(countPerPage);
+      canFetch.current = false;
+    }
+  }, [table.getState().pagination.pageIndex, countPerPage]);
+
+  const changeCountPerPage = (value: number) => {
+    setCountPerPage(value);
+    table.setPageIndex(0);
+    page.current = 0;
+
+    table.setPageSize(value);
+  }
+
+  const renderPaginationPageSelect = () => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+
+    if (currentPage + 1 >= totalPages - 5 && totalPages <= 5) {
+      return (
+        <>
+          {Array.from(Array(totalPages).keys()).map((pageN: number) => (
+            <PaginationItem key={pageN}>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                isActive={currentPage === pageN}
+                onClick={() => table.setPageIndex(pageN)}>{pageN + 1}</PaginationLink>
+            </PaginationItem>
+          ))}
+        </>
+      );
+    }
+
+    if (currentPage + 1 < 5 && totalPages > 5) {
+      return (
+        <>
+          {Array.from(Array(5).keys()).map((pageN: number) => (
+            <PaginationItem key={pageN}>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                isActive={currentPage === pageN}
+                onClick={() => table.setPageIndex(pageN)}>{pageN + 1}</PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        </>
+      );
+    }
+
+    if (currentPage + 1 >= 5 && totalPages > 6) {
+      return (
+        <>
+          {currentPage + 3 < totalPages ?
+          <>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                onClick={() => table.setPageIndex(currentPage)}>{currentPage}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                isActive={true} 
+                onClick={() => table.setPageIndex(currentPage)}>{currentPage + 1}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                onClick={() => table.setPageIndex(currentPage + 1)}>{currentPage + 2}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+          </>
+          :
+          <>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                onClick={() => table.setPageIndex(0)}>1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                isActive={currentPage + 1 === totalPages - 3} 
+                onClick={() => table.setPageIndex(currentPage - 3)}>{totalPages - 3}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                isActive={currentPage + 1 === totalPages - 2} 
+                onClick={() => table.setPageIndex(currentPage - 2)}>{totalPages - 2}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                isActive={currentPage + 1 === totalPages - 1} 
+                onClick={() => table.setPageIndex(currentPage - 1)}>{totalPages - 1}</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                isActive={currentPage + 1 === totalPages} 
+                onClick={() => table.setPageIndex(currentPage)}>{totalPages}</PaginationLink>
+            </PaginationItem>
+          </>
+          }
+        </>
+      );
+    }
+  }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                      ? null 
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                      )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+    <div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                        ? null 
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                        )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {loading ?
-                  <div className="flex justify-center items-center">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
-                  </div>
-                  :
-                  <>
-                    {noResultsMsg}
-                  </>}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  {loading ?
+                    <div className="flex justify-center items-center">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </div>
+                    :
+                    <>
+                      {noResultsMsg}
+                    </>}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      {table.getRowCount() > 10 &&
+        <div className="flex justify-between pt-3">
+          <div className="flex gap-2 items-center w-full">
+              <span>Showing</span>
+              <Select defaultValue={countPerPage.toString()} onValueChange={(value: string) => changeCountPerPage(parseInt(value))}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Items" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+            </Select>
+            <span>items per page</span>
+          </div>
+          <Pagination className="justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  className="cursor-pointer select-none"
+                  onClick={() => table.getCanPreviousPage() && canFetch.current && table.previousPage()}
+                  isActive={table.getCanPreviousPage()}
+                  />
+              </PaginationItem>
+              {renderPaginationPageSelect()}
+              <PaginationItem>
+                <PaginationNext
+                  className="cursor-pointer select-none"
+                  onClick={() => table.getCanNextPage() && canFetch.current && table.nextPage()} 
+                  isActive={table.getCanNextPage()}
+                  />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      }
     </div>
   );
 }

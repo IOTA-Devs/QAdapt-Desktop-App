@@ -44,7 +44,7 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
 
                 <div className="flex flex-row border-t items-center gap-2 p-3">
                     <Avatar>
-                        <AvatarImage alt="profile-avatar"/>
+                        <AvatarImage src={userData && userData.avatarURL || ""} alt="profile-avatar"/>
                         <AvatarFallback>{userData && userData.username?.[0]}</AvatarFallback>
                     </Avatar>
                     <p>{userData?.username}</p>

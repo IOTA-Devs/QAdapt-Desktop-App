@@ -142,7 +142,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 userId: response.data.id,
                 username: response.data.username,
                 fullName: response.data.full_name,
-                email: response.data.email
+                email: response.data.email,
+                avatarURL: response.data.avatar_url
             };
             localStorage.setItem('userData', JSON.stringify(userData));
             setUserData(userData);
@@ -170,7 +171,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 userId: response.data.user.user_id,
                 username: response.data.user.username,
                 fullName: response.data.user.full_name,
-                email: response.data.user.email
+                email: response.data.user.email,
+                avatarURL: response.data.avatar_url
             };
             setUserData(userData);
             setLoggedIn(true);
@@ -216,7 +218,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 userId: response.data.user.user_id,
                 username: response.data.user.username,
                 fullName: response.data.user.full_name,
-                email: response.data.user.email
+                email: response.data.user.email,
+                avatarURL: response.data.avatar_url
             };
             authData.current = {
                 accessToken: response.data.access_token,
@@ -261,7 +264,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 userId: response.data.user_id,
                 username: response.data.username,
                 fullName: response.data.full_name,
-                email: response.data.email
+                email: response.data.email,
+                avatarURL: response.data.avatar_url
             };
 
             localStorage.setItem('userData', JSON.stringify(userData));
