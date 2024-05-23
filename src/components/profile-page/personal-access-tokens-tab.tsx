@@ -248,7 +248,6 @@ export default function PersonalAccessTokensTab() {
                 const expiresDate = token.expires_at ? new Date(token.expires_at) : null;
 
                 return {
-                    userId: token.user_id,
                     name: token.name,
                     expiresAt: expiresDate ? getFormatedDate(expiresDate) : "Never",
                     createdAt: getFormatedDate(createdDate),

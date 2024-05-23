@@ -45,7 +45,8 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
   const [countPerPage, setCountPerPage] = useState<number>(10);
   const canFetch = useRef<boolean>(true);
   const page = useRef<number>(0);
-
+  const [pageCount, setPageCount] = useState<number>();
+  
   const table = useReactTable({
     data,
     columns,
@@ -64,7 +65,10 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
 
   useEffect(() => {
     setTimeout(() => {
+      setPageCount(table.getPageCount());
+      if (pageCount && table.getPageCount() <= pageCount) return;
       table.setPageIndex(page.current);
+      
     }, 0);
     canFetch.current = true;
 

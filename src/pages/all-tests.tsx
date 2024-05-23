@@ -17,7 +17,6 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { RotateCcw } from "lucide-react";
-import { boolean } from "zod";
 
 export default function Reports() {
     const { APIProtected } = useContext(AuthContext);
@@ -191,8 +190,8 @@ export default function Reports() {
                     </Select>
                 </div>
 
-                <div className="mt-5">
-                    <Button variant="ghost" disabled={loading}><RotateCcw /></Button>
+                <div className="mt-6">
+                    <Button variant="ghost" disabled={loading} onClick={() => fetchTests(true)}><RotateCcw /></Button>
                 </div>
             </div>
             <DataTable

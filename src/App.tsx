@@ -72,7 +72,7 @@ export default function App() {
             { path: "/tests", element: <ProtectedRoute><AllTests/></ProtectedRoute> },
             { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> },
             { path: "/help", element: <ProtectedRoute><Help/></ProtectedRoute>},
-            { path: "/reports/:testId", element: <ProtectedRoute><Reports /></ProtectedRoute> }
+            { path: "/tests/reports/:testId", element: <ProtectedRoute><Reports /></ProtectedRoute> }
         ]
     },
     {
