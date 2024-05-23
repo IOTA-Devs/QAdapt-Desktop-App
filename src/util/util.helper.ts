@@ -71,7 +71,6 @@ export const getRelativeTime = (date: Date): string => {
  * Converts base 64 data into a blob with specific content type
  */
 export const dataURIToBlob = (base64Data: string, contentType: string): Blob => {
-    console.log(base64Data);
     const byteCharacters = atob(base64Data.split(',')[1]);
 
     const byteNumbers = new Array(byteCharacters.length);

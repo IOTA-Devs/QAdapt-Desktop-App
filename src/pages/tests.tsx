@@ -17,9 +17,12 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { RotateCcw } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate } from "react-router-dom";
 
 export default function Reports() {
     const { APIProtected } = useContext(AuthContext);
+    const navigate = useNavigate();
     
     const [cursor, setCursor] = useState<number>();
     const [tests, setTests] = useState<Test[]>([]);
@@ -36,7 +39,6 @@ export default function Reports() {
 
         let url = `api/tests?recent=${sortBy}&filter=${filterBy}`;
 
-        console.log(cursor)
         if (cursor) {
             url += `&cursor=${cursor}`;
         }
@@ -95,6 +97,28 @@ export default function Reports() {
     }
 
     const columns: ColumnDef<Test>[] = [
+        {
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                    }
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
         {
             accessorKey: "name",
             header: "Test"
@@ -161,6 +185,10 @@ export default function Reports() {
         <>
             <h2 className="text-3xl py-5 font-bold">Recent Test Reports</h2>
             <div className="pb-2 flex justify-end items-center gap-3">
+                <div className="mt-6">
+                    <Button variant="destructive" disabled={loading}>Delete</Button>
+                </div>
+
                 <div>
                     <Label>Sort By</Label>
                     <Select defaultValue="newest" disabled={loading} onValueChange={(value: string) => value === "newest" ? setSortBy(true) : setSortBy(false)}>
@@ -200,6 +228,7 @@ export default function Reports() {
                 loading={loading}
                 noResultsMsg="No test have been run"
                 fetchData={getNextPage}
+                onRowClick={(row) => navigate(`/tests/reports/${row.testId}`)}
             />
         </>
     );

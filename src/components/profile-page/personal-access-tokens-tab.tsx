@@ -266,7 +266,7 @@ export default function PersonalAccessTokensTab() {
     const deleteTokens = async () => {
         if (!selectedRows.length) toast.info("No tokens selected.")
         
-        const response = APIProtected.delete("api/personal_tokens/delete_personal_access_tokens", {
+        const response = APIProtected.delete("api/personal_tokens/delete_pat", {
             data: {
                 token_ids: selectedRows.map((row) => row.tokenId)
             }
@@ -283,7 +283,7 @@ export default function PersonalAccessTokensTab() {
     }
 
     const createNewToken = async (tokenData: { token_name: string, expiration_delta: number | null }) => {
-        const response = APIProtected.post("api/personal_tokens/generate_personal_access_token", tokenData);
+        const response = APIProtected.post("api/personal_tokens/generate_pat", tokenData);
 
         toast.promise(response, {
             loading: "Generating Personal Access Token",
