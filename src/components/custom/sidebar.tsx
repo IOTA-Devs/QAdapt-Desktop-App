@@ -2,7 +2,7 @@ import { AuthContext } from "@/contexts/authContext";
 import { useContext } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MoreHorizontal, User, LogOut, Info, SunMoon } from "lucide-react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useMatch } from "react-router-dom";
 import { 
     DropdownMenu, 
     DropdownMenuTrigger, 
@@ -21,6 +21,7 @@ import { SidebarMenuProps } from "@/types/types";
 export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
     const { userData, logout } = useContext(AuthContext);
     const { setTheme, theme } = useTheme();
+    const match = useMatch("/profile");
 
     return (
       <div className="flex flex-row">
@@ -43,12 +44,28 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                 </div>
 
                 <div className="flex flex-row border-t items-center gap-2 p-3">
-                    <Avatar>
-                        <AvatarImage src={userData && userData.avatarURL || ""} alt="profile-avatar"/>
-                        <AvatarFallback>{userData && userData.username?.[0]}</AvatarFallback>
-                    </Avatar>
-                    <p>{userData?.username}</p>
-                    
+                    {match ? (
+                        <>
+                            <Avatar>
+                                <AvatarImage src={userData && userData.avatarURL || ""} alt="profile-avatar"/>
+                                <AvatarFallback>{userData && userData.username?.[0]}</AvatarFallback>
+                            </Avatar>
+                            <p>{userData?.username}</p>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/profile">
+                                <Avatar>
+                                    <AvatarImage src={userData && userData.avatarURL || ""} alt="profile-avatar"/>
+                                    <AvatarFallback>{userData && userData.username?.[0]}</AvatarFallback>
+                                </Avatar>
+                            </Link>
+                            <Link to="/profile">
+                                <p>{userData?.username}</p>
+                            </Link>
+                        </>
+                    )}
+
                     <div className="ml-auto">
                         <DropdownMenu>
                             <DropdownMenuTrigger><MoreHorizontal/></DropdownMenuTrigger>
