@@ -138,15 +138,15 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         firstRender.current = false;
 
         APIProtected.get('api/users/me').then((response) => {
-            const userData = {
+            const responseUserData = {
                 userId: response.data.id,
                 username: response.data.username,
                 fullName: response.data.full_name,
                 email: response.data.email,
                 avatarURL: response.data.avatar_url
             };
-            localStorage.setItem('userData', JSON.stringify(userData));
-            setUserData(userData);
+            localStorage.setItem('userData', JSON.stringify(responseUserData));
+            setUserData(responseUserData);
             setLoggedIn(true);
         }).catch(() => {
             deleteFromLocalStorage('userData', 'r_t', 's_id');
@@ -167,14 +167,15 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 }
             });
 
-            const userData = {
+            const loginUserData = {
                 userId: response.data.user.user_id,
                 username: response.data.user.username,
                 fullName: response.data.user.full_name,
                 email: response.data.user.email,
-                avatarURL: response.data.avatar_url
+                avatarURL: response.data.user.avatar_url
             };
-            setUserData(userData);
+
+            setUserData(loginUserData);
             setLoggedIn(true);
 
             authData.current = {
@@ -182,7 +183,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 tokenExpiresIn: response.data.expires_in,
                 tokenSetAt: Date.now()
             };
-            localStorage.setItem('userData', JSON.stringify(userData));
+            localStorage.setItem('userData', JSON.stringify(loginUserData));
             localStorage.setItem('r_t', response.data.refresh_token);
             localStorage.setItem('s_id', response.data.session_id);
 
@@ -214,22 +215,22 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 }
             });
 
-            const userData = {
+            const newUserData = {
                 userId: response.data.user.user_id,
                 username: response.data.user.username,
                 fullName: response.data.user.full_name,
                 email: response.data.user.email,
-                avatarURL: response.data.avatar_url
+                avatarURL: response.data.user.avatar_url
             };
             authData.current = {
                 accessToken: response.data.access_token,
                 tokenExpiresIn: response.data.expires_in,
                 tokenSetAt: Date.now()
             };
-            setUserData(userData);
+            setUserData(newUserData);
             setLoggedIn(true);
 
-            localStorage.setItem('userData', JSON.stringify(userData));
+            localStorage.setItem('userData', JSON.stringify(newUserData));
             localStorage.setItem('r_t', response.data.refresh_token);
             localStorage.setItem('s_id', response.data.session_id);
 

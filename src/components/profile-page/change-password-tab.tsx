@@ -58,7 +58,7 @@ export default function ChangePasswordTab() {
             form.reset();
             toast.success("Password changed successfully.");
         }).catch((err) => {
-            console.log(err.response.data.detail.code);
+            console.log(err);
             if (err.response && err.response.data.detail.code === ErrorCodes.AUTHENTICATION_ERROR) {
                 form.setError("currentPassword", {
                     type: "value",

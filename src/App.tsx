@@ -11,9 +11,10 @@ const Signup = lazy(() => import("./pages/signup"));
 const Login = lazy(() => import("./pages/login"));
 const Dashboard = lazy(() => import("./pages/dashboard"));
 const Collections = lazy(() => import("./pages/collections"));
-const AllTests = lazy(() => import("./pages/all-tests"));
+const AllTests = lazy(() => import("./pages/tests"));
 const Profile = lazy(() => import("./pages/profile"));
 const Help = lazy(() => import("./pages/help"));
+const Reports = lazy(() => import("./pages/reports"));
 
 const items = [
   {
@@ -70,7 +71,8 @@ export default function App() {
             { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
             { path: "/tests", element: <ProtectedRoute><AllTests/></ProtectedRoute> },
             { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> },
-            { path: "help", element: <ProtectedRoute><Help/></ProtectedRoute>}
+            { path: "/help", element: <ProtectedRoute><Help/></ProtectedRoute>},
+            { path: "/tests/reports/:testId", element: <ProtectedRoute><Reports /></ProtectedRoute> }
         ]
     },
     {

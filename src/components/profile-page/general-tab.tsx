@@ -32,8 +32,11 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import UploadImage from "../custom/upload-image";
+import { ErrorCodes } from "@/types/types";
 
 function DeleteAccountPasswordConfirm({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+    const { APIProtected, logout } = useContext(AuthContext);
+
     const passwordFormSchema = z.object({
         password: z.string().min(1, "Password is required")
     });
@@ -46,9 +49,36 @@ function DeleteAccountPasswordConfirm({ open, onOpenChange }: { open: boolean, o
     });
     
     const onSubmit = (e: z.infer<typeof passwordFormSchema>) => {
-        form.reset();
+        APIProtected.post("api/profile/delete_account", {
+            password: e.password
+        }, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        }).then((response) => {
+            if (response.data.deletion_timestamp) {
+                form.reset();
+                onOpenChange(false);
 
-        onOpenChange(false);
+                setTimeout(() => {
+                    logout();
+                }, 2000);
+            }
+        }).catch((err) => {
+            console.error(err);
+
+            if (!err.response) {
+                toast.error("Failed to schedule account removal. Please try again");
+                return;
+            }
+
+            if (err.response.data.detail && err.response.data.detail.code === ErrorCodes.AUTHENTICATION_ERROR) {
+                form.setError("password", {
+                    type: "value",
+                    message: "Incorrect account password"
+                });
+            }
+        });
     }
 
     return (

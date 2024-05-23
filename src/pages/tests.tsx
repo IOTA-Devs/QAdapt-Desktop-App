@@ -7,30 +7,44 @@ import Status from "@/components/custom/status";
 import { toast } from "sonner";
 import { getRelativeTime } from "@/util/util.helper";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { RotateCcw } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate } from "react-router-dom";
 
 export default function Reports() {
     const { APIProtected } = useContext(AuthContext);
+    const navigate = useNavigate();
+    
     const [cursor, setCursor] = useState<number>();
-
     const [tests, setTests] = useState<Test[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [sortBy, setSortBy] = useState<boolean>(true);
+    const [filterBy, setFilterBy] = useState<string>("all");
 
     useEffect(() => {
-        fetchTests();
-    }, []);
+        fetchTests(true);
+    }, [sortBy, filterBy]);
 
-    const fetchTests = (cursor?: number, limit?: number) => {
+    const fetchTests = (clear: boolean = false, cursor?: number, limit?: number) => {
         setLoading(true);
 
-        let url = 'api/tests';
+        let url = `api/tests?recent=${sortBy}&filter=${filterBy}`;
 
         if (cursor) {
-            url += `?cursor=${cursor}`;
+            url += `&cursor=${cursor}`;
         }
 
         if (limit) {
-            if (cursor) url += `&limit=${limit}`;
-            else  url += `?limit=${limit}`
+            url += `&limit=${limit}`
         }
 
         APIProtected.get(url).then((response) => {
@@ -49,7 +63,7 @@ export default function Reports() {
                 setCursor(testsRes[testsRes.length - 1].testId);
             }
 
-            if (tests.length > 1) {
+            if (tests.length > 1 && !clear) {
                 setTests((prev) => [...prev, ...testsRes]);
             } else {
                 setTests(testsRes);
@@ -79,10 +93,32 @@ export default function Reports() {
                 break;    
         }
 
-        fetchTests(cursor, limit);
+        fetchTests(false, cursor, limit);
     }
 
     const columns: ColumnDef<Test>[] = [
+        {
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                    }
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
         {
             accessorKey: "name",
             header: "Test"
@@ -148,12 +184,51 @@ export default function Reports() {
     return (
         <>
             <h2 className="text-3xl py-5 font-bold">Recent Test Reports</h2>
+            <div className="pb-2 flex justify-end items-center gap-3">
+                <div className="mt-6">
+                    <Button variant="destructive" disabled={loading}>Delete</Button>
+                </div>
+
+                <div>
+                    <Label>Sort By</Label>
+                    <Select defaultValue="newest" disabled={loading} onValueChange={(value: string) => value === "newest" ? setSortBy(true) : setSortBy(false)}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="newest">Newest</SelectItem>
+                            <SelectItem value="oldest">Oldest</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div>
+                    <Label>Filter By</Label>
+                    <Select defaultValue="all" disabled={loading} onValueChange={(value: string) => setFilterBy(value)}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Filer by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="Success">Successfull</SelectItem>
+                            <SelectItem value="Failed">Failed</SelectItem>
+                            <SelectItem value="Warning">Warning</SelectItem>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="mt-6">
+                    <Button variant="ghost" disabled={loading} onClick={() => fetchTests(true)}><RotateCcw /></Button>
+                </div>
+            </div>
             <DataTable
                 columns={columns}
                 data={tests}
                 loading={loading}
                 noResultsMsg="No test have been run"
                 fetchData={getNextPage}
+                onRowClick={(row) => navigate(`/tests/reports/${row.testId}`)}
             />
         </>
     );

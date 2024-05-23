@@ -41,7 +41,6 @@ export interface SidebarMenuProps {
 
 export type PersonalAccessToken = {
     tokenId: number
-    userId: number
     name: string
     expiresAt: string
     createdAt: string
@@ -64,4 +63,11 @@ export interface UploadImageProps {
     height: string;
     maxImageSizeInMb: number;
     onCrop: (croppedImage: Blob) => void;
+}
+
+export interface TestReportProps {
+    name: string
+    description: string
+    status: "Success" | "Failed" | "Warning"
+    screenshotURL: string
 }
