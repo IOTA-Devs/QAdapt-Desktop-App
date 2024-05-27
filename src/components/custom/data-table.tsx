@@ -3,7 +3,10 @@ import {
     flexRender,
     getCoreRowModel,
     useReactTable,
-    getPaginationRowModel
+    getPaginationRowModel,
+    Row,
+    Updater,
+    RowSelectionState
 } from "@tanstack/react-table";
 import {
     Table,
@@ -40,9 +43,10 @@ interface DataTableProps<TData, TValue> {
   fetchData?: (countPerPage: number) => void
   loading?: boolean
   onRowClick?: (row: TData) => void
+  maxSelectable?: number
 }
 
-export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelectRows, fetchData, onRowClick, loading = false }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelectRows, fetchData, onRowClick, maxSelectable, loading = false }: DataTableProps<TData, TValue>) {
   const [countPerPage, setCountPerPage] = useState<number>(10);
   const canFetch = useRef<boolean>(true);
   const page = useRef<number>(0);

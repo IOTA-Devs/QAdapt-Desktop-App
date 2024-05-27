@@ -9,6 +9,19 @@ import { getRelativeTime } from "@/util/util.helper";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { RotateCcw } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate } from "react-router-dom";
+import { 
+    AlertDialog, 
+    AlertDialogFooter, 
+    AlertDialogHeader, 
+    AlertDialogAction, 
+    AlertDialogCancel, 
+    AlertDialogContent, 
+    AlertDialogDescription, 
+    AlertDialogTitle 
+} from "@/components/ui/alert-dialog";
 import {
     Select,
     SelectContent,
@@ -23,9 +36,6 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { RotateCcw } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigate } from "react-router-dom";
 
 export default function Reports() {
     const { APIProtected } = useContext(AuthContext);
@@ -36,6 +46,8 @@ export default function Reports() {
     const [loading, setLoading] = useState<boolean>(false);
     const [sortBy, setSortBy] = useState<boolean>(true);
     const [filterBy, setFilterBy] = useState<string>("all");
+    const [selectedTests, setSelectedTests] = useState<Test[]>([]);
+    const [deleteTestsModalOpen, setDeleteTestsModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
         fetchTests(true);
@@ -103,6 +115,25 @@ export default function Reports() {
         fetchTests(false, cursor, limit);
     }
 
+    const deleteTests = async () => {
+        if (!selectedTests.length) toast.info("No tests Selected");
+
+        const response = APIProtected.delete("api/tests/delete_tests", {
+            data: {
+                test_ids: selectedTests.map((test) => test.testId)
+            }
+        });
+
+        toast.promise(response, {
+            loading: "Deleting tests...",
+            success: "Tests deleted successfully.",
+            error: "Error while deleting tests"
+        });
+
+        await response;
+        fetchTests(true);
+    }
+
     const columns: ColumnDef<Test>[] = [
         {
             id: "select",
@@ -112,14 +143,14 @@ export default function Reports() {
                         table.getIsAllPageRowsSelected() ||
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    onCheckedChange={(value) => table.getSelectedRowModel().rows.length < 2 || !value ? table.toggleAllPageRowsSelected(!!value) : toast.info("Can't select more than 200 tests at once")}
                     aria-label="Select all"
                 />
             ),
-            cell: ({ row }) => (
+            cell: ({ row, table }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    onCheckedChange={(value) => table.getSelectedRowModel().rows.length < 2 || !value ? row.toggleSelected(!!value) : toast.info("Can't select more than 200 tests at once")}
                     aria-label="Select row"
                 />
             ),
@@ -204,7 +235,21 @@ export default function Reports() {
 
             <div className="pb-2 flex justify-end items-center gap-3">
                 <div className="mt-6">
-                    <Button variant="destructive" disabled={loading}>Delete</Button>
+                    <AlertDialog open={deleteTestsModalOpen} onOpenChange={(open) => setDeleteTestsModalOpen(open)}>
+                        <Button variant="destructive" onClick={() => !selectedTests.length ? toast.info("No selected tests") : setDeleteTestsModalOpen(true)}>Delete</Button>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure you want to delete these tests?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will delete all of the selected tests and report data associated with said tests.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={deleteTests}>Yes</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
 
                 <div>
@@ -246,6 +291,10 @@ export default function Reports() {
                 loading={loading}
                 noResultsMsg="No test have been run"
                 fetchData={getNextPage}
+                onSelectRows={(rows: Test[]) => {
+                   setSelectedTests(rows);
+                }}
+                maxSelectable={2}
                 onRowClick={(row) => navigate(`/tests/reports/${row.testId}`)}
             />
         </>

@@ -323,7 +323,7 @@ export default function PersonalAccessTokensTab() {
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Are you sure you want to delete these tokens?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    These will delete and revoke access to the selected personal access tokens.
+                                    This will delete and revoke access to the selected personal access tokens.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
