@@ -9,16 +9,24 @@ import {
 import GeneralTab from "@/components/profile-page/general-tab";
 import ChangePasswordTab from "@/components/profile-page/change-password-tab";
 import PersonalAccessTokensTab from "@/components/profile-page/personal-access-tokens-tab";
+import { useSearchParams } from "react-router-dom";
 
 export default function Profile() {
+    const [currentQueryParameters, setSearchParams] = useSearchParams();
+
+    const changeTab = (tab: string) => {
+        const params = new URLSearchParams({["tab"]: tab || "general" });
+        setSearchParams(params);
+    }
+
     return (
         <>
             <h2 className="text-3xl py-5 font-bold">My Profile</h2>
-            <Tabs defaultValue="general">
+            <Tabs defaultValue="general" value={currentQueryParameters.get("tab") || "general"} onValueChange={(value: string) => changeTab(value)}>
                 <TabsList>
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="change-password">Change Password</TabsTrigger>
-                    <TabsTrigger value="persona-access-token">Personal Access Tokens</TabsTrigger>
+                    <TabsTrigger value="personal-access-token">Personal Access Tokens</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="general">
@@ -45,7 +53,7 @@ export default function Profile() {
                     </Card>  
                 </TabsContent>
 
-                <TabsContent value="persona-access-token">
+                <TabsContent value="personal-access-token">
                     <Card className="mt-2">
                         <CardHeader>
                             <CardTitle>Personal Access Tokens</CardTitle>

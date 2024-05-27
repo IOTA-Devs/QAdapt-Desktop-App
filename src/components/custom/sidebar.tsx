@@ -108,7 +108,7 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                 </div>
             </nav>
         </aside>
-        <div className="flex-shrink-1 w-full xl:mx-52 lg:mx-20 overflow-y-auto">
+        <div className="flex-shrink-1 w-full xl:mx-40 lg:mx-20 overflow-y-auto">
           {children}
         </div>
       </div>

@@ -16,6 +16,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { RotateCcw } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
@@ -184,6 +191,17 @@ export default function Reports() {
     return (
         <>
             <h2 className="text-3xl py-5 font-bold">Recent Test Reports</h2>
+
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Tests</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                </BreadcrumbList>
+            </Breadcrumb>
+
             <div className="pb-2 flex justify-end items-center gap-3">
                 <div className="mt-6">
                     <Button variant="destructive" disabled={loading}>Delete</Button>

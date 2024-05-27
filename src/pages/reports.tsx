@@ -1,15 +1,25 @@
-import { StatusComponentTypes, TestReportProps } from '@/types/types';
+import { Test, TestReportProps } from '@/types/types';
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
 import { AuthContext } from '@/contexts/authContext';
 import { toast } from 'sonner';
 import Status from '@/components/custom/status';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 function ReportSkeletonLoader() {
     return (
         <>
-            <Skeleton className="w-[350px] h-[40px] rounded-md my-5" />
+            <Skeleton className="w-[350px] h-[40px] rounded-md mt-5 mb-3" />
+            <Skeleton className="w-[280px] h-[30px] rounded-md mb-5" />
+            <Skeleton className="w-[280px] h-[20px] rounded-md mb-5" />
             <div className="flex justify-between gap-5 mb-5">
                 <Skeleton className="w-full h-[20px] rounded-md" />
                 <Skeleton className="w-80 h-[20px] rounded-md" />
@@ -47,7 +57,7 @@ function TestReport({ name, description, status, screenshotURL }: TestReportProp
                                 return "warning"
                         }})()} 
                         message={status}
-                        />
+                    />
                 </div>
                 <div>
                     <img src={screenshotURL} alt={`${name}-report-screenshot`} />
@@ -64,6 +74,7 @@ export default function Reports() {
 
     const [loading, setLoading] = useState<boolean>(true);
     const [reportData, setReportData] = useState<TestReportProps[]>([]);
+    const [testData, setTestData] = useState<Test>();
 
     useEffect(() => {
         fetchReportData();
@@ -72,7 +83,14 @@ export default function Reports() {
     const fetchReportData = () => {
         setLoading(true);
         APIProtected.get(`api/tests/report/${testId}`).then((response) => {
-            console.log(response.data);
+            setTestData({
+                testId: response.data.test.test_id,
+                scriptId: response.data.test.script_id,
+                name: response.data.test.name,
+                startTimestamp: response.data.test.start_timestamp,
+                endTimestamp: response.data.test.end_timestamp,
+                status: response.data.test.status
+            });
 
             setLoading(false);
         }).catch(() => {
@@ -86,7 +104,22 @@ export default function Reports() {
                 <ReportSkeletonLoader />
             :
             <>
-                <h2 className="text-3xl py-5 font-bold">Test Report {testId}</h2>
+                <h2 className="text-3xl pt-5 pb-3 font-bold">Test Report {testId}</h2>
+                <p className="text-lg text-muted-foreground pb-5">{testData && new Date(testData.startTimestamp).toDateString()}</p>
+                <Breadcrumb className="pb-5">
+                    <BreadcrumbList>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild>
+                                <Link to="/tests">Tests</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Report {testId}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
                 <div className="flex justify-between">
                     <h4 className="font-semibold w-52">Log</h4>
                     <h4 className="font-semibold">Status</h4>
@@ -97,7 +130,7 @@ export default function Reports() {
                         <p>Found</p>
                     :   
                         <div className="py-6">
-                            <p className="text-center text-muted-foreground">This test has no reports</p>
+                            <p className="text-center text-muted-foreground">This test has no logs</p>
                         </div>
                     }
                 </div>
