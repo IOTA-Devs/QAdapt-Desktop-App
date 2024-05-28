@@ -17,9 +17,7 @@ import {
 function ReportSkeletonLoader() {
     return (
         <>
-            <Skeleton className="w-[350px] h-[40px] rounded-md mt-5 mb-3" />
             <Skeleton className="w-[280px] h-[30px] rounded-md mb-5" />
-            <Skeleton className="w-[280px] h-[20px] rounded-md mb-5" />
             <div className="flex justify-between gap-5 mb-5">
                 <Skeleton className="w-full h-[20px] rounded-md" />
                 <Skeleton className="w-80 h-[20px] rounded-md" />
@@ -100,26 +98,26 @@ export default function Reports() {
 
     return (
         <>
+            <h2 className="text-3xl pt-5 pb-3 font-bold">Test Report {testId}</h2>
+            <Breadcrumb className="pb-5">
+                <BreadcrumbList>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link to="/tests">Tests</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Report {testId}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
             {loading ?
                 <ReportSkeletonLoader />
             :
-            <>
-                <h2 className="text-3xl pt-5 pb-3 font-bold">Test Report {testId}</h2>
+            <p>
                 <p className="text-lg text-muted-foreground pb-5">{testData && new Date(testData.startTimestamp).toDateString()}</p>
-                <Breadcrumb className="pb-5">
-                    <BreadcrumbList>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink asChild>
-                                <Link to="/tests">Tests</Link>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>Report {testId}</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
                 <div className="flex justify-between">
                     <h4 className="font-semibold w-52">Log</h4>
                     <h4 className="font-semibold">Status</h4>
@@ -134,7 +132,7 @@ export default function Reports() {
                         </div>
                     }
                 </div>
-            </>
+            </p>
             }
         </>
     );

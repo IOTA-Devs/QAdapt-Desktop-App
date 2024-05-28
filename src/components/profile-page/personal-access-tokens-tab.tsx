@@ -98,7 +98,7 @@ function CreateTokenModal({ onTokenCreate }: { onTokenCreate: (tokenData: { toke
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Token Name</FormLabel>
+                                    <FormLabel htmlFor="name">Token Name</FormLabel>
                                     <FormControl>
                                         <Input type="text" id="name" placeholder="Your token name" {...field}></Input>
                                     </FormControl>
@@ -251,7 +251,7 @@ export default function PersonalAccessTokensTab() {
                     name: token.name,
                     expiresAt: expiresDate ? getFormatedDate(expiresDate) : "Never",
                     createdAt: getFormatedDate(createdDate),
-                    status: expiresDate ? expiresDate < new Date() ? "Expired" : "Active" : "Active",
+                    status: expiresDate && expiresDate < new Date() ? "Expired" : "Active",
                     tokenId: token.token_id
                 } as PersonalAccessToken;
             });

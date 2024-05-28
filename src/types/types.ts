@@ -71,3 +71,21 @@ export interface TestReportProps {
     status: "Success" | "Failed" | "Warning"
     screenshotURL: string
 }
+
+export interface CollectionCardProps {
+    collectionId: number,
+    name: string,
+    description: string,
+    lastUpdated: Date,
+    scripts: number,
+    tests: number
+}
+
+export interface CollectionDataModalProps {
+    collectionId?: number, 
+    defaultName: string, 
+    defaultDescription: string, 
+    open: boolean, 
+    onOpenChange: (value: boolean) => void, 
+    onSubmitCompleted?: (name: string, description: string) => void 
+}

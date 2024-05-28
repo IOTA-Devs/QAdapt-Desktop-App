@@ -118,9 +118,9 @@ export default function SingupForm() {
                                 name="email"
                                 render={({field}) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel htmlFor="email">Email</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter your email here" {...field}/>
+                                                <Input id="email" placeholder="Enter your email here" {...field}/>
                                             </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -130,9 +130,9 @@ export default function SingupForm() {
                                 name="username"
                                 render={({field}) => (
                                     <FormItem>
-                                        <FormLabel>Username</FormLabel>
+                                        <FormLabel htmlFor="username">Username</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Your username" {...field}/>
+                                                <Input id="username" placeholder="Your username" {...field}/>
                                             </FormControl>
                                         <FormMessage />
                                         <FormDescription>This is how others will see you.</FormDescription>
@@ -143,9 +143,9 @@ export default function SingupForm() {
                                 name="fullName"
                                 render={({field}) => (
                                     <FormItem>
-                                        <FormLabel>Full Name</FormLabel>
+                                        <FormLabel htmlFor="full-name">Full Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Your full name" {...field}/>
+                                                <Input id="full-name" placeholder="Your full name" {...field}/>
                                             </FormControl>
                                         <FormMessage />
                                         <FormDescription>Optinal</FormDescription>
@@ -156,9 +156,9 @@ export default function SingupForm() {
                                 name="password"
                                 render={({field}) => (
                                     <FormItem>
-                                        <FormLabel>Password</FormLabel>
+                                        <FormLabel htmlFor="password">Password</FormLabel>
                                             <FormControl>
-                                                <Input type="password" placeholder="Enter your password here" {...field}/>
+                                                <Input id="password" type="password" placeholder="Enter your password here" {...field}/>
                                             </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -168,9 +168,9 @@ export default function SingupForm() {
                                 name="confirmPassword"
                                 render={({field}) => (
                                     <FormItem>
-                                        <FormLabel>Confirm Password</FormLabel>
+                                        <FormLabel htmlFor="password-confirm">Confirm Password</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Confirm your password" type="password" {...field}/>
+                                                <Input id="password-confirm" placeholder="Confirm your password" type="password" {...field}/>
                                             </FormControl>
                                         <FormMessage />
                                     </FormItem>

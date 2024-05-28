@@ -3,10 +3,7 @@ import {
     flexRender,
     getCoreRowModel,
     useReactTable,
-    getPaginationRowModel,
-    Row,
-    Updater,
-    RowSelectionState
+    getPaginationRowModel
 } from "@tanstack/react-table";
 import {
     Table,
@@ -48,25 +45,31 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelectRows, fetchData, onRowClick, maxSelectable, loading = false }: DataTableProps<TData, TValue>) {
   const [countPerPage, setCountPerPage] = useState<number>(10);
+  const [pageCount, setPageCount] = useState<number>();
   const canFetch = useRef<boolean>(true);
   const page = useRef<number>(0);
-  const [pageCount, setPageCount] = useState<number>();
+  
+  const [rowSelection, setRowSelection] = useState({});
   
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onRowSelectionChange: setRowSelection,
+    enableRowSelection: maxSelectable ? Object.keys(rowSelection).length < maxSelectable : true,
+    state: {
+      rowSelection
+    },
   });
 
   useEffect(() => {
     const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
-    canFetch.current = true;
 
     if (onSelectRows) {
       onSelectRows(selectedRows);
     }
-  }, [table.getSelectedRowModel().rows]);
+  }, [rowSelection]);
 
   useEffect(() => {
     setTimeout(() => {

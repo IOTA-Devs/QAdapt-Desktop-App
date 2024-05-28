@@ -15,6 +15,7 @@ const AllTests = lazy(() => import("./pages/tests"));
 const Profile = lazy(() => import("./pages/profile"));
 const Help = lazy(() => import("./pages/help"));
 const Reports = lazy(() => import("./pages/reports"));
+const Scripts = lazy(() => import("./pages/scripts"));
 
 const items = [
   {
@@ -69,6 +70,7 @@ export default function App() {
             { path: "/", element:<ProtectedRoute><Navigate to="/home"/></ProtectedRoute>},
             { path: "/home", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
             { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
+            { path: "/collections/:collectionId", element: <ProtectedRoute><Scripts /></ProtectedRoute> },
             { path: "/tests", element: <ProtectedRoute><AllTests/></ProtectedRoute> },
             { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> },
             { path: "/help", element: <ProtectedRoute><Help/></ProtectedRoute>},
