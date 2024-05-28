@@ -148,7 +148,7 @@ export default function SingupForm() {
                                                 <Input id="full-name" placeholder="Your full name" {...field}/>
                                             </FormControl>
                                         <FormMessage />
-                                        <FormDescription>Optinal</FormDescription>
+                                        <FormDescription>Optional</FormDescription>
                                     </FormItem>
                                 )}/>
                             <FormField
