@@ -75,7 +75,7 @@ export default function Reports() {
                 setTests(testsRes);
             }
         }).catch((err) => {
-            console.log(err);
+            console.error(err);
             toast.error("Error loading tests");
         }).finally(() => {
             setLoading(false);

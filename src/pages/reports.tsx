@@ -116,7 +116,7 @@ export default function Reports() {
             {loading ?
                 <ReportSkeletonLoader />
             :
-            <p>
+            <>
                 <p className="text-lg text-muted-foreground pb-5">{testData && new Date(testData.startTimestamp).toDateString()}</p>
                 <div className="flex justify-between">
                     <h4 className="font-semibold w-52">Log</h4>
@@ -132,7 +132,7 @@ export default function Reports() {
                         </div>
                     }
                 </div>
-            </p>
+            </>
             }
         </>
     );

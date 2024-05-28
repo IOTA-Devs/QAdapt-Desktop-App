@@ -266,7 +266,6 @@ export default function Collections() {
             query += `?date_cursor=${dateCursor}`;
         }
         APIProtected.get(query).then((response) => {
-            console.log(response.data);
             const collectionsData: CollectionCardProps[] = response.data.collections.map((collection: any) => {
                 return {
                     collectionId: collection.collection_id,
