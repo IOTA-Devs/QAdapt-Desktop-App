@@ -21,6 +21,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "@/contexts/authContext";
 import { Navigate } from "react-router-dom";
 import ButtonLoader from "@/components/custom/button-loader";
+import PageTitle from "@/components/custom/page-title";
 
 export default function Login() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -66,6 +67,7 @@ export default function Login() {
 
     return (
         <div className="h-full flex flex-col items-center justify-center w-full">
+            <PageTitle tabTitle="QAdapt | Login"/>
             <Card className="shadow-xl w-full max-w-[400px]">
                 <CardHeader>
                     <CardTitle className="text-4xl">Login</CardTitle>

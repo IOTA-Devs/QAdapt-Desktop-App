@@ -54,6 +54,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PersistanceContext } from "@/contexts/persistanceContext";
 import { Label } from "@/components/ui/label";
+import PageTitle from "@/components/custom/page-title";
 
 function CollectionDataModal(
     { 
@@ -209,7 +210,7 @@ function CollectionCard({ collectionId, name, description, lastUpdated, scripts,
     }
 
     return (
-        <Card className="min-w-[300px] hover:scale-[1.03] collection-card z-10">
+        <Card className="w-[300px] hover:scale-[1.03] collection-card z-10">
             <AlertDialog open={deleteModal} onOpenChange={(value: boolean) => setDeleteModal(value)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -314,7 +315,7 @@ export default function Collections() {
         let query = "api/collections";
 
         if (dateCursor) {
-            query += `?date_cursor=${dateCursor}`;
+            query += `?cursor=${dateCursor.getTime()}`;
         }
         APIProtected.get(query).then((response) => {
             const collectionsData: Collection[] = response.data.collections.map((collection: any) => {
@@ -383,6 +384,7 @@ export default function Collections() {
     }
     return (
         <>
+            <PageTitle tabTitle="QAdapt | Collections" />
             <h2 className="text-3xl py-5 font-bold">Colletions</h2>
 
             <Breadcrumb className="mb-5">

@@ -17,7 +17,6 @@ import {
     DialogTitle,
     DialogFooter,
     DialogClose,
-    DialogTrigger,
     DialogDescription
 } from "@/components/ui/dialog";
 import { 
@@ -29,6 +28,7 @@ import {
     DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import PageTitle from "@/components/custom/page-title";
 
 function ScriptModal({ collectionId, onSubmit, defaultName, scriptId, open, onOpenChange }: { collectionId: string, onSubmit: (name: string) => void, open: boolean, onOpenChange: (value: boolean) => void, defaultName?: string, scriptId?: number }) {
     const { APIProtected } = useContext(AuthContext);
@@ -298,6 +298,7 @@ export default function Scripts() {
 
     return(
         <>  
+            <PageTitle tabTitle={`QAdapt | ${currentQueryParameters.get("title")!}`}/>
             <h2 className="text-3xl py-5 font-bold">Scripts in "{title}"</h2>
 
             <Breadcrumb className="mb-5">

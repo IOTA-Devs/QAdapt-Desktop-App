@@ -1,5 +1,5 @@
 import SidebarMenu from "./components/custom/sidebar";
-import { Suspense, lazy, useContext } from "react";
+import { Suspense, lazy, useContext, useEffect } from "react";
 import { Navigate, Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import ThemeProvider from "./contexts/themeContext";
 import { LayoutDashboard, LayoutList, Group } from "lucide-react";
@@ -84,7 +84,7 @@ export default function App() {
     },
     {
         path: "*",
-        element: <Login/>
+        element: <Navigate to="/login" />
     },
   ]);
 

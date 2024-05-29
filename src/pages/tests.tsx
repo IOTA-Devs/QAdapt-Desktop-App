@@ -25,12 +25,13 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useNavigate } from "react-router-dom";
+import PageTitle from "@/components/custom/page-title";
 
 export default function Reports() {
     const { APIProtected } = useContext(AuthContext);
     const navigate = useNavigate();
     
-    const [cursor, setCursor] = useState<number>();
+    const [cursor, setCursor] = useState<Date>();
     const [tests, setTests] = useState<Test[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [sortBy, setSortBy] = useState<boolean>(true);
@@ -45,7 +46,7 @@ export default function Reports() {
         fetchTests(true);
     }, [sortBy, filterBy]);
 
-    const fetchTests = async (clear: boolean = false, cursor?: number) => {
+    const fetchTests = async (clear: boolean = false, cursor?: Date) => {
         if (noMoreResults.current) return;
 
         setLoading(true);
@@ -53,7 +54,7 @@ export default function Reports() {
         let url = `api/tests?recent=${sortBy}&filter=${filterBy}&limit=${limit.current}`;
 
         if (cursor && !clear) {
-            url += `&cursor=${cursor}`;
+            url += `&cursor=${cursor.getTime()}`;
         }
 
         await APIProtected.get(url).then((response) => {
@@ -69,7 +70,7 @@ export default function Reports() {
             });
 
             if (testsRes.length) {
-                setCursor(testsRes[testsRes.length - 1].testId);
+                setCursor(new Date(testsRes[testsRes.length - 1].startTimestamp));
             } else {
                 noMoreResults.current = true;
             }
@@ -175,6 +176,7 @@ export default function Reports() {
 
     return (
         <>
+            <PageTitle tabTitle="QAdapt | Tests"/>
             <h2 className="text-3xl py-5 font-bold">Recent Test Reports</h2>
 
             <Breadcrumb>

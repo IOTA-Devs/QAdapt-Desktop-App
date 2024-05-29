@@ -23,6 +23,7 @@ import { AuthContext } from "@/contexts/authContext";
 import { useNavigate } from "react-router-dom";
 import { ErrorCodes } from "@/types/types";
 import ButtonLoader from "@/components/custom/button-loader";
+import PageTitle from "@/components/custom/page-title";
 
 export default function SingupForm() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -99,6 +100,7 @@ export default function SingupForm() {
 
     return (
         <div className="h-full flex flex-col items-center justify-center w-full">
+            <PageTitle tabTitle="QAdapt | Signup"/>
             <Card className="shadow-xl w-full max-w-[400px]">
                 <CardHeader>
                     <CardTitle className="text-4xl">Sign Up</CardTitle>

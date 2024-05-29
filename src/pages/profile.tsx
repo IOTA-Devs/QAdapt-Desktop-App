@@ -10,6 +10,7 @@ import GeneralTab from "@/components/profile-page/general-tab";
 import ChangePasswordTab from "@/components/profile-page/change-password-tab";
 import PersonalAccessTokensTab from "@/components/profile-page/personal-access-tokens-tab";
 import { useSearchParams } from "react-router-dom";
+import PageTitle from "@/components/custom/page-title";
 
 export default function Profile() {
     const [currentQueryParameters, setSearchParams] = useSearchParams();
@@ -21,6 +22,7 @@ export default function Profile() {
 
     return (
         <>
+            <PageTitle tabTitle="QAdapt | My Profile" />
             <h2 className="text-3xl py-5 font-bold">My Profile</h2>
             <Tabs defaultValue="general" value={currentQueryParameters.get("tab") || "general"} onValueChange={(value: string) => changeTab(value)}>
                 <TabsList>

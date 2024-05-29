@@ -13,6 +13,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import PageTitle from '@/components/custom/page-title';
 
 function ReportSkeletonLoader() {
     return (
@@ -97,7 +98,8 @@ export default function Reports() {
     }
 
     return (
-        <>
+        <>  
+            <PageTitle tabTitle={`QAdapt | Test ${testId}`} />
             <h2 className="text-3xl pt-5 pb-3 font-bold">Test Report {testId}</h2>
             <Breadcrumb className="pb-5">
                 <BreadcrumbList>
