@@ -1,6 +1,6 @@
 import { AuthContext } from "@/contexts/authContext";
 import { StatusComponentTypes, Test } from "@/types/types";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { DataTable } from "@/components/custom/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import Status from "@/components/custom/status";
@@ -36,24 +36,27 @@ export default function Reports() {
     const [sortBy, setSortBy] = useState<boolean>(true);
     const [filterBy, setFilterBy] = useState<string>("all");
 
+    const noMoreResults = useRef<boolean>(false);
+    const limit = useRef<number>(100);
+
     useEffect(() => {
+        noMoreResults.current = false;
+
         fetchTests(true);
     }, [sortBy, filterBy]);
 
-    const fetchTests = (clear: boolean = false, cursor?: number, limit?: number) => {
+    const fetchTests = async (clear: boolean = false, cursor?: number) => {
+        if (noMoreResults.current) return;
+
         setLoading(true);
 
-        let url = `api/tests?recent=${sortBy}&filter=${filterBy}`;
+        let url = `api/tests?recent=${sortBy}&filter=${filterBy}&limit=${limit.current}`;
 
-        if (cursor) {
+        if (cursor && !clear) {
             url += `&cursor=${cursor}`;
         }
 
-        if (limit) {
-            url += `&limit=${limit}`
-        }
-
-        APIProtected.get(url).then((response) => {
+        await APIProtected.get(url).then((response) => {
             const testsRes: Test[] = response.data.tests.map((test: any) => {
                 return {
                     testId: test.test_id,
@@ -67,13 +70,17 @@ export default function Reports() {
 
             if (testsRes.length) {
                 setCursor(testsRes[testsRes.length - 1].testId);
+            } else {
+                noMoreResults.current = true;
             }
 
             if (tests.length > 1 && !clear) {
                 setTests((prev) => [...prev, ...testsRes]);
-            } else {
-                setTests(testsRes);
+                return;
             }
+
+            setTests(testsRes);
+
         }).catch((err) => {
             console.error(err);
             toast.error("Error loading tests");
@@ -82,24 +89,21 @@ export default function Reports() {
         });
     }
 
-    const getNextPage = (countPerPage: number) => {
-        let limit = 100;
+    const getNextPage = async (countPerPage: number) => {
         switch (countPerPage) {
             case 10:
-                limit = 100;
-                break;
             case 25:
-                limit = 250;
+                limit.current = 250;
                 break;
             case 50:
-                limit = 300;
+                limit.current = 300;
                 break;
             case 100:
-                limit = 500;
+                limit.current = 500;
                 break;    
         }
 
-        fetchTests(false, cursor, limit);
+        await fetchTests(false, cursor);
     }
 
     const columns: ColumnDef<Test>[] = [
@@ -214,7 +218,7 @@ export default function Reports() {
                 </div>
 
                 <div className="mt-6">
-                    <Button variant="ghost" disabled={loading} onClick={() => fetchTests(true)}><RotateCcw /></Button>
+                    <Button variant="ghost" disabled={loading} onClick={() => {noMoreResults.current = false; fetchTests(true)}}><RotateCcw /></Button>
                 </div>
             </div>
             <DataTable

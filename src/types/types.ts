@@ -72,13 +72,18 @@ export interface TestReportProps {
     screenshotURL: string
 }
 
-export interface CollectionCardProps {
+export interface Collection {
     collectionId: number,
     name: string,
     description: string,
     lastUpdated: Date,
     scripts: number,
-    tests: number
+    tests: number,
+}
+
+export interface CollectionCardProps extends Collection {
+    onDelete: (id: number) => void
+    onEdited: (newName: string, newDescription: string, id: number) => void
 }
 
 export interface CollectionDataModalProps {
@@ -88,4 +93,10 @@ export interface CollectionDataModalProps {
     open: boolean, 
     onOpenChange: (value: boolean) => void, 
     onSubmitCompleted?: (name: string, description: string) => void 
+}
+
+export interface Script {
+    scriptId: number
+    name: string
+    tests: number
 }

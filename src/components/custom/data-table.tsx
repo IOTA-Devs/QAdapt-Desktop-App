@@ -37,13 +37,15 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   noResultsMsg: string
   onSelectRows?: (rows: TData[]) => void
-  fetchData?: (countPerPage: number) => void
+  fetchData?: (countPerPage: number) => Promise<void>
   loading?: boolean
   onRowClick?: (row: TData) => void
   maxSelectable?: number
 }
 
 export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelectRows, fetchData, onRowClick, maxSelectable, loading = false }: DataTableProps<TData, TValue>) {
+  const initialRender = useRef<boolean>(true);
+  
   const [countPerPage, setCountPerPage] = useState<number>(10);
   const [pageCount, setPageCount] = useState<number>();
   const canFetch = useRef<boolean>(true);
@@ -59,7 +61,7 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
     onRowSelectionChange: setRowSelection,
     enableRowSelection: maxSelectable ? Object.keys(rowSelection).length < maxSelectable : true,
     state: {
-      rowSelection
+      rowSelection,
     },
   });
 
@@ -74,23 +76,29 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
   useEffect(() => {
     setTimeout(() => {
       setPageCount(table.getPageCount());
-      if (pageCount && table.getPageCount() <= pageCount) return;
+      if (pageCount && table.getPageCount() < pageCount) return;
       table.setPageIndex(page.current);
       
     }, 0);
-    canFetch.current = true;
 
     table.resetRowSelection();
   }, [data]);
 
   useEffect(() => {
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    };
+
     const currentPage = table.getState().pagination.pageIndex;
     const totalPages = table.getPageCount();
     
     page.current = currentPage;
-    if (currentPage + 5 >= totalPages && fetchData && canFetch.current) {
-      fetchData(countPerPage);
+    if (currentPage + 4 >= totalPages && totalPages > 0 && fetchData && canFetch.current) {
       canFetch.current = false;
+      fetchData(countPerPage).finally(() => {
+        canFetch.current = true;
+      });
     }
   }, [table.getState().pagination.pageIndex, countPerPage]);
 
@@ -129,7 +137,7 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
               <PaginationLink
                 className="cursor-pointer select-none"
                 isActive={currentPage === pageN}
-                onClick={() => table.setPageIndex(pageN)}>{pageN + 1}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(pageN)}>{pageN + 1}</PaginationLink>
             </PaginationItem>
           ))}
           <PaginationItem>
@@ -145,23 +153,28 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
           {currentPage + 3 < totalPages ?
           <>
             <PaginationItem>
+              <PaginationLink
+                className="cursor-pointer select-none"
+                onClick={() => canFetch.current && table.setPageIndex(0)}>1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
               <PaginationEllipsis />
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
-                onClick={() => table.setPageIndex(currentPage - 1)}>{currentPage}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(currentPage - 1)}>{currentPage}</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
                 isActive={true} 
-                onClick={() => table.setPageIndex(currentPage)}>{currentPage + 1}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(currentPage)}>{currentPage + 1}</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
-                onClick={() => table.setPageIndex(currentPage + 1)}>{currentPage + 2}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(currentPage + 1)}>{currentPage + 2}</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationEllipsis />
@@ -172,7 +185,7 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
-                onClick={() => table.setPageIndex(0)}>1</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(0)}>1</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationEllipsis />
@@ -181,25 +194,25 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
               <PaginationLink
                 className="cursor-pointer select-none"
                 isActive={currentPage + 1 === totalPages - 3} 
-                onClick={() => table.setPageIndex(currentPage - 3)}>{totalPages - 3}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(currentPage - 3)}>{totalPages - 3}</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
                 isActive={currentPage + 1 === totalPages - 2} 
-                onClick={() => table.setPageIndex(currentPage - 2)}>{totalPages - 2}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(currentPage - 2)}>{totalPages - 2}</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
                 isActive={currentPage + 1 === totalPages - 1} 
-                onClick={() => table.setPageIndex(currentPage - 1)}>{totalPages - 1}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(currentPage - 1)}>{totalPages - 1}</PaginationLink>
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
                 className="cursor-pointer select-none"
                 isActive={currentPage + 1 === totalPages} 
-                onClick={() => table.setPageIndex(currentPage)}>{totalPages}</PaginationLink>
+                onClick={() => canFetch.current && table.setPageIndex(currentPage)}>{totalPages}</PaginationLink>
             </PaginationItem>
           </>
           }

@@ -102,3 +102,14 @@
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+.collection-card {
+  transition: all 0.3s ease;
+
+}
+
+.collection-card:hover {
+  -webkit-box-shadow:0px 0px 29px 0px rgba(17,195,222,0.25);
+  -moz-box-shadow: 0px 0px 29px 0px rgba(17,195,222,0.25);
+  box-shadow: 0px 0px 29px 0px rgba(17,195,222,0.25);
+}

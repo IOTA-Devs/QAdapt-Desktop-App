@@ -6,6 +6,7 @@ import { LayoutDashboard, LayoutList, Group } from "lucide-react";
 import { AuthContext } from "./contexts/authContext";
 import AuthProvider from "./contexts/authContext";
 import { Toaster } from "@/components/ui/sonner";
+import PersistanceProvider from "./contexts/persistanceContext";
 
 const Signup = lazy(() => import("./pages/signup"));
 const Login = lazy(() => import("./pages/login"));
@@ -16,6 +17,7 @@ const Profile = lazy(() => import("./pages/profile"));
 const Help = lazy(() => import("./pages/help"));
 const Reports = lazy(() => import("./pages/reports"));
 const Scripts = lazy(() => import("./pages/scripts"));
+const ScriptTests = lazy(() => import("./pages/scriptTests"));
 
 const items = [
   {
@@ -40,7 +42,9 @@ function Layout() {
     <SidebarMenu items={items}>
       <Suspense>
         <div className="p-5 w-full overflow-y-auto">
-          <Outlet/>
+          <PersistanceProvider>
+            <Outlet/>
+          </PersistanceProvider>
         </div>
       </Suspense>
     </SidebarMenu>
@@ -71,6 +75,7 @@ export default function App() {
             { path: "/home", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
             { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
             { path: "/collections/:collectionId", element: <ProtectedRoute><Scripts /></ProtectedRoute> },
+            { path: "/collections/:collectionId/tests", element: <ProtectedRoute><ScriptTests /></ProtectedRoute> },
             { path: "/tests", element: <ProtectedRoute><AllTests/></ProtectedRoute> },
             { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> },
             { path: "/help", element: <ProtectedRoute><Help/></ProtectedRoute>},

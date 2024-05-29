@@ -27,21 +27,33 @@ import {
     DialogFooter,
     DialogClose
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { CollectionCardProps, CollectionDataModalProps } from "@/types/types";
+import { Collection, CollectionCardProps, CollectionDataModalProps } from "@/types/types";
 import { Badge } from "@/components/ui/badge";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "@/contexts/authContext";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { PersistanceContext } from "@/contexts/persistanceContext";
+import { Label } from "@/components/ui/label";
 
 function CollectionDataModal(
     { 
@@ -173,31 +185,57 @@ function CollectionDataModal(
     );
 }
 
-function CollectionCard({ collectionId, name, description, lastUpdated, scripts, tests }: CollectionCardProps) {
-    const [editCollectionModal, setEditCollectionModal] = useState<boolean>(false);
+function CollectionCard({ collectionId, name, description, lastUpdated, scripts, tests, onDelete, onEdited }: CollectionCardProps) {
+    const { APIProtected } = useContext(AuthContext);
+    const [editModal, setEditModal] = useState<boolean>(false);
+    const [deleteModal, setDeleteModal] = useState<boolean>(false);
 
     const [defaultVals, setDefaultVals] = useState<{ name: string, description: string }>({
         name,
         description
     });
 
-    const deleteCollection = () => {
+    const deleteCollection = async () => {
+        const response = APIProtected.delete(`api/collections/delete_collection/${collectionId}`);
 
+        toast.promise(response, {
+            success: "Collection deleted",
+            loading: "Deleting Collection",
+            error: "Couldn't delete collection. Please try again"
+        });
+
+        await response;
+        onDelete(collectionId);
     }
 
     return (
-        <Card className="min-w-[calc(25%-0.75rem)] hover:shadow-lg hover:scale-[1.03] transition-all ease-in-out duration-200">
+        <Card className="min-w-[300px] hover:scale-[1.03] collection-card z-10">
+            <AlertDialog open={deleteModal} onOpenChange={(value: boolean) => setDeleteModal(value)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure you want to delete this collection?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone and will delete all scripts and test reports within said collection.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={deleteCollection}>Yes</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
             <CollectionDataModal
                 defaultName={defaultVals.name} 
                 defaultDescription={defaultVals.description} 
                 collectionId={collectionId}
-                open={editCollectionModal}
-                onOpenChange={(value: boolean) => setEditCollectionModal(value)}
+                open={editModal}
+                onOpenChange={(value: boolean) => setEditModal(value)}
                 onSubmitCompleted={(name, description) => {
                     setDefaultVals({
                         name,
                         description
                     });
+                    onEdited(name, description, collectionId);
                 }}
                 />
             <Link to={`/collections/${collectionId}?title=${defaultVals.name}`}>
@@ -220,12 +258,17 @@ function CollectionCard({ collectionId, name, description, lastUpdated, scripts,
                     <Badge variant="default">{lastUpdated.toDateString()}</Badge>
 
                     <DropdownMenu>
-                        <DropdownMenuTrigger><MoreHorizontal/></DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             <DropdownMenuItem onClick={(e) => {
                                 e.stopPropagation()
 
-                                setEditCollectionModal(true);
+                                setEditModal(true);
                             }}>
                                 <Pencil className="mr-2 h-4 w-4" />
                                 <span>Edit</span>
@@ -233,7 +276,7 @@ function CollectionCard({ collectionId, name, description, lastUpdated, scripts,
                             <DropdownMenuItem onClick={(e) => {
                                 e.stopPropagation();
 
-                                deleteCollection();
+                                setDeleteModal(true);
                             }}>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 <span>Delete</span>
@@ -248,13 +291,21 @@ function CollectionCard({ collectionId, name, description, lastUpdated, scripts,
 
 export default function Collections() {
     const { APIProtected } = useContext(AuthContext);
+    const { collections: savedCollections, saveCollections } = useContext(PersistanceContext);
+
+    const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
     const [dateCursor, setDateCursor] = useState<Date>();
-    const [collections, setCollections] = useState<CollectionCardProps[]>([]);
+    const [collections, setCollections] = useState<Collection[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [createCollectionModal, setCreateCollectionModal] = useState<boolean>(false);
 
     useEffect(() => {
+        if (savedCollections.length) {
+            setCollections(savedCollections);
+            return;
+        }
+
         fetchCollections();
     }, []);
 
@@ -266,7 +317,7 @@ export default function Collections() {
             query += `?date_cursor=${dateCursor}`;
         }
         APIProtected.get(query).then((response) => {
-            const collectionsData: CollectionCardProps[] = response.data.collections.map((collection: any) => {
+            const collectionsData: Collection[] = response.data.collections.map((collection: any) => {
                 return {
                     collectionId: collection.collection_id,
                     name: collection.name,
@@ -274,13 +325,18 @@ export default function Collections() {
                     lastUpdated: new Date(collection.last_updated),
                     scripts: collection.scripts,
                     tests: collection.tests
-                } as CollectionCardProps;
+                } as Collection;
             });
             
             if (reFetch) {
                 setCollections(collectionsData);
+                saveCollections(collectionsData);
             } else {
-                setCollections((old) => ([...old, ...collectionsData]));
+                setCollections((old) => {
+                    const newData = [...old, ...collectionsData];
+                    saveCollections(newData);
+                    return newData;
+                });
             }
 
             if (response.data.collections.length >= response.data.limit) {
@@ -293,7 +349,39 @@ export default function Collections() {
             setLoading(false);
         });
     }
-    return(
+
+    const fetchCollectionsByName = (query: string) => {
+        if (query.length < 1) {
+            fetchCollections();
+            return;
+        };
+
+        if (query.length > 32) return;
+        
+        setLoading(true);
+        APIProtected.get(`api/collections/search?search_query=${query}`).then((response) => {
+            const collectionsData: Collection[] = response.data.results.map((collection: any) => {
+                return {
+                    collectionId: collection.collection_id,
+                    name: collection.name,
+                    description: collection.description,
+                    lastUpdated: new Date(collection.last_updated),
+                    scripts: collection.scripts,
+                    tests: collection.tests
+                } as Collection;
+            });
+            
+            setCollections(collectionsData);
+        }).catch((err) => {
+            console.error(err);
+            toast.error("Failed to fetch collections. Try reloading the page");
+        }).finally(() => {
+            setLoading(false);
+        });
+
+        searchTimeout.current = null;
+    }
+    return (
         <>
             <h2 className="text-3xl py-5 font-bold">Colletions</h2>
 
@@ -307,8 +395,7 @@ export default function Collections() {
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="pb-3">
-                <Button variant="default" onClick={() => setCreateCollectionModal(true)}><Plus className="mr-2"/>Create</Button>
+            <div className="flex items-center justify-between gap-5">
                 <CollectionDataModal 
                     open={createCollectionModal}
                     defaultName="" 
@@ -316,9 +403,24 @@ export default function Collections() {
                     onOpenChange={(value: boolean) => setCreateCollectionModal(value)}
                     onSubmitCompleted={() => fetchCollections()}
                 />
+                <div className="flex gap-2 items-center">
+                    <div>
+                        <Label htmlFor="collection-name">Search</Label>
+                        <Input type="text" id="collection-name" placeholder="Collection Name" onChange={(e) => {
+                            const value = e.target.value;
+                            
+                            if (value.length > 32) return;
+                            
+                            if (searchTimeout.current) clearTimeout(searchTimeout.current);
+                            searchTimeout.current = setTimeout(() => fetchCollectionsByName(value), 200);
+                        }}></Input>
+                    </div>
+                    <Button className="ml-2 mt-6" variant="ghost" onClick={() => fetchCollections()} disabled={loading}><RotateCcw /></Button>
+                </div>
+                <Button className="mt-6" variant="default" onClick={() => setCreateCollectionModal(true)}><Plus className="mr-2"/>Create</Button>
             </div>
 
-            <div className="flex flex-row flex-wrap justify-start gap-3">
+            <div className="flex flex-row flex-wrap justify-start gap-3 py-3">
                 {!loading && !collections.length &&
                     <div className="w-full h-40">
                         <p className="text-muted-foreground">No Collections</p>
@@ -338,7 +440,29 @@ export default function Collections() {
                 :
                 <>
                     {collections.map((collection) => (
-                        <CollectionCard key={collection.collectionId} {...collection}></CollectionCard>
+                        <CollectionCard key={collection.collectionId} {...collection} onDelete={(id: number) => {
+                            const filteredCollections = collections.filter((collection) => collection.collectionId !== id);
+
+                            setCollections(filteredCollections);
+                            saveCollections(filteredCollections);
+                        }}
+                        onEdited={(newName, newDescription, collectionId) => {
+                            const editedCollectionIndex = collections.findIndex((collection) => collection.collectionId === collectionId);
+                            if (editedCollectionIndex === -1) return;
+
+                            const updatedCollections = collections.map((collection) => 
+                                collection.collectionId === editedCollectionIndex ?
+                                {
+                                    ...collection,
+                                    name: newName,
+                                    description: newDescription
+                                } :
+                                collection
+                            );
+
+                            setCollections(updatedCollections)
+                            saveCollections(updatedCollections);
+                        }}></CollectionCard>
                     ))}
                 </>
                 }

@@ -24,7 +24,7 @@ export default function Status({ status, message }: { status: StatusComponentTyp
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <span style={{ background: getStatusColor(status) }} className="block rounded-full h-3 w-3"></span>
+                    <div style={{ backgroundColor: getStatusColor(status) }} className="block rounded-full h-3 w-3 bg-opacity-50"></div>
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>{message}</p>
