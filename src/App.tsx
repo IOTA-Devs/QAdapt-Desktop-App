@@ -7,17 +7,20 @@ import { AuthContext } from "./contexts/authContext";
 import AuthProvider from "./contexts/authContext";
 import { Toaster } from "@/components/ui/sonner";
 import PersistanceProvider from "./contexts/persistanceContext";
+import SessionError from "./pages/sessionerror";
+import Loader from "./components/custom/loader";
 
 const Signup = lazy(() => import("./pages/signup"));
 const Login = lazy(() => import("./pages/login"));
 const Dashboard = lazy(() => import("./pages/dashboard"));
 const Collections = lazy(() => import("./pages/collections"));
-const AllTests = lazy(() => import("./pages/tests"));
+const AllTests = lazy(() => import("./components/custom/tests"));
 const Profile = lazy(() => import("./pages/profile"));
 const Help = lazy(() => import("./pages/help"));
-const Reports = lazy(() => import("./pages/reports"));
+const Reports = lazy(() => import("./components/custom/reports"));
 const Scripts = lazy(() => import("./pages/scripts"));
 const ScriptTests = lazy(() => import("./pages/scriptTests"));
+const ReportPage = lazy(() => import("./pages/report-page"));
 
 const items = [
   {
@@ -40,11 +43,13 @@ const items = [
 function Layout() {
   return (
     <SidebarMenu items={items}>
-      <Suspense>
-        <div className="p-5 w-full overflow-y-auto">
-          <PersistanceProvider>
-            <Outlet/>
-          </PersistanceProvider>
+      <Suspense fallback={<Loader/>}>
+        <div className="flex-shrink-1 w-full xl:mx-40 lg:mx-20 overflow-y-auto">
+          <div className="p-5 w-full overflow-y-auto">
+            <PersistanceProvider>
+              <Outlet/>
+            </PersistanceProvider>
+          </div>
         </div>
       </Suspense>
     </SidebarMenu>
@@ -54,7 +59,11 @@ function Layout() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { loggedIn } = useContext(AuthContext);
 
-  return loggedIn ? children : <Navigate to="/login"/>;
+  if (loggedIn === null) {
+    return null
+  }
+
+  return loggedIn === true ? children : <Navigate to="/login" />;
 }
 
 export default function App() {
@@ -69,22 +78,27 @@ export default function App() {
     },
     {
         path: "/",
-        element: <Layout/>,
+        element: <ProtectedRoute><Layout/></ProtectedRoute>,
         children: [
-            { path: "/", element:<ProtectedRoute><Navigate to="/home"/></ProtectedRoute>},
-            { path: "/home", element: <ProtectedRoute><Dashboard/></ProtectedRoute> },
-            { path: "/collections", element: <ProtectedRoute><Collections/></ProtectedRoute>},
-            { path: "/collections/:collectionId", element: <ProtectedRoute><Scripts /></ProtectedRoute> },
-            { path: "/collections/:collectionId/tests", element: <ProtectedRoute><ScriptTests /></ProtectedRoute> },
-            { path: "/tests", element: <ProtectedRoute><AllTests/></ProtectedRoute> },
-            { path: "/profile", element: <ProtectedRoute><Profile/></ProtectedRoute> },
-            { path: "/help", element: <ProtectedRoute><Help/></ProtectedRoute>},
-            { path: "/tests/reports/:testId", element: <ProtectedRoute><Reports /></ProtectedRoute> }
+            { path: "/", element:<Navigate to="/home"/>},
+            { path: "/home", element: <Dashboard/> },
+            { path: "/collections", element: <Collections/>},
+            { path: "/collections/:collectionId/:collectionName", element: <Scripts /> },
+            { path: "/collections/:collectionId/:collectionName/:scriptId/:scriptName", element: <ScriptTests /> },
+            { path: "/collections/:collectionId/:collectionName/:scriptId/:scriptName/:testId", element: <ReportPage /> },
+            { path: "/tests", element: <AllTests onRowRedirect={(row) => (`/tests/reports/${row.testId}`)}/> },
+            { path: "/profile", element: <Profile/> },
+            { path: "/help", element: <Help/>},
+            { path: "/tests/reports/:testId", element: <Reports /> }
         ]
     },
     {
+      path: "/sessionerror",
+      element: <SessionError/>
+    },
+    {
         path: "*",
-        element: <Navigate to="/login" />
+        element: <ProtectedRoute><Navigate to="/home" /></ProtectedRoute>
     },
   ]);
 

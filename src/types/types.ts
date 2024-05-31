@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface UserData {
     userId: string;
     username: string;
@@ -99,4 +101,11 @@ export interface Script {
     scriptId: number
     name: string
     tests: number
+}
+
+export interface TestsComponentProps {
+    onRowRedirect: (row: Test) => string
+    scriptId?: number
+    customTitle?: string
+    customBreadcrumb?: ReactNode
 }

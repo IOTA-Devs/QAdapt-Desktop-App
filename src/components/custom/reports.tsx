@@ -1,6 +1,6 @@
 import { Test, TestReportProps } from '@/types/types';
-import { useContext, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ReactNode, useContext, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
 import { AuthContext } from '@/contexts/authContext';
 import { toast } from 'sonner';
@@ -66,10 +66,9 @@ function TestReport({ name, description, status, screenshotURL }: TestReportProp
     );
 }
 
-export default function Reports() {
+export default function Reports({ customBreadcrumb }: { customBreadcrumb?: ReactNode }) {
     const { APIProtected } = useContext(AuthContext);
     const { testId } = useParams();
-    const navigate = useNavigate();
 
     const [loading, setLoading] = useState<boolean>(true);
     const [reportData, setReportData] = useState<TestReportProps[]>([]);
@@ -91,6 +90,17 @@ export default function Reports() {
                 status: response.data.test.status
             });
 
+            setReportData(() => {
+                return response.data.logs.map((report: any) => (
+                    {
+                        name: report.selenium_selector_name,
+                        description: report.healing_description,
+                        status: report.status,
+                        screenshotURL: report.screenshot_url
+                    } as TestReportProps
+                ));
+            });
+
             setLoading(false);
         }).catch(() => {
             toast.error("Failed to fetch report data");
@@ -100,42 +110,48 @@ export default function Reports() {
     return (
         <>  
             <PageTitle tabTitle={`QAdapt | Test ${testId}`} />
-            <h2 className="text-3xl pt-5 pb-3 font-bold">Test Report {testId}</h2>
-            <Breadcrumb className="pb-5">
-                <BreadcrumbList>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link to="/tests">Tests</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Report {testId}</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            {loading ?
-                <ReportSkeletonLoader />
-            :
-            <>
-                <p className="text-lg text-muted-foreground pb-5">{testData && new Date(testData.startTimestamp).toDateString()}</p>
-                <div className="flex justify-between">
-                    <h4 className="font-semibold w-52">Log</h4>
-                    <h4 className="font-semibold">Status</h4>
-                    <h4 className="font-semibold">Screenshot</h4>
-                </div>
-                <div className="flex justify-between">
-                    {reportData.length ?
-                        <p>Found</p>
-                    :   
-                        <div className="py-6">
-                            <p className="text-center text-muted-foreground">This test has no logs</p>
-                        </div>
-                    }
-                </div>
-            </>
+            <h2 className="text-3xl py-5 font-bold">Test Report {testId}</h2>
+            
+            {customBreadcrumb ? customBreadcrumb :
+                <Breadcrumb className="pb-5">
+                    <BreadcrumbList>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild>
+                                <Link to="/tests">Tests</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Report {testId}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
             }
+
+            <div className="mt-2">
+                {loading ?
+                    <ReportSkeletonLoader />
+                :
+                <>
+                    <p className="text-lg text-muted-foreground pb-5">{testData && new Date(testData.startTimestamp).toDateString()}</p>
+                    <div className="flex justify-between">
+                        <h4 className="font-semibold w-52">Selector</h4>
+                        <h4 className="font-semibold">Status</h4>
+                        <h4 className="font-semibold">Screenshot</h4>
+                    </div>
+                    <div className="flex justify-between">
+                        {reportData.length ?
+                            <p>Found</p>
+                        :   
+                            <div className="py-6">
+                                <p className="text-center text-muted-foreground">This test has no logs</p>
+                            </div>
+                        }
+                    </div>
+                </>
+                }
+            </div>
         </>
     );
 }

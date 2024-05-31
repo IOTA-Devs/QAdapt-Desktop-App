@@ -1,5 +1,5 @@
 import { AuthContext } from "@/contexts/authContext";
-import { StatusComponentTypes, Test } from "@/types/types";
+import { StatusComponentTypes, Test, TestsComponentProps } from "@/types/types";
 import { useContext, useEffect, useRef, useState } from "react";
 import { DataTable } from "@/components/custom/data-table";
 import { ColumnDef } from "@tanstack/react-table";
@@ -27,7 +27,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import PageTitle from "@/components/custom/page-title";
 
-export default function Reports() {
+export default function Reports({ onRowRedirect, customTitle, scriptId, customBreadcrumb }: TestsComponentProps) {
     const { APIProtected } = useContext(AuthContext);
     const navigate = useNavigate();
     
@@ -52,9 +52,12 @@ export default function Reports() {
         setLoading(true);
 
         let url = `api/tests?recent=${sortBy}&filter=${filterBy}&limit=${limit.current}`;
-
         if (cursor && !clear) {
             url += `&cursor=${cursor.getTime()}`;
+        }
+
+        if (scriptId) {
+            url += `&script_id=${scriptId}`;
         }
 
         await APIProtected.get(url).then((response) => {
@@ -177,17 +180,19 @@ export default function Reports() {
     return (
         <>
             <PageTitle tabTitle="QAdapt | Tests"/>
-            <h2 className="text-3xl py-5 font-bold">Recent Test Reports</h2>
+            <h2 className="text-3xl py-5 font-bold">{customTitle || "Recent Test Reports"}</h2>
 
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Tests</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                </BreadcrumbList>
-            </Breadcrumb>
+            {customBreadcrumb ? customBreadcrumb :
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Tests</BreadcrumbPage>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                    </BreadcrumbList>
+                </Breadcrumb>
+            }
 
             <div className="pb-2 flex justify-end items-center gap-3">
                 <div>
@@ -229,7 +234,7 @@ export default function Reports() {
                 loading={loading}
                 noResultsMsg="No test have been run"
                 fetchData={getNextPage}
-                onRowClick={(row) => navigate(`/tests/reports/${row.testId}`)}
+                onRowClick={(row) => navigate(onRowRedirect(row))}
             />
         </>
     );

@@ -104,9 +104,8 @@ function ScriptModal({ collectionId, onSubmit, defaultName, scriptId, open, onOp
 export default function Scripts() {
     const { APIProtected } = useContext(AuthContext);
 
-    const { collectionId } = useParams();
+    const { collectionId, collectionName } = useParams();
     const [currentQueryParameters] = useSearchParams();
-    const [title, setTitle] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [scripts, setScripts] = useState<Script[]>([]);
     const [cursor, setCursor] = useState<number>();
@@ -118,11 +117,6 @@ export default function Scripts() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const collectionTitle = currentQueryParameters.get("title");
-
-        if (!collectionTitle) return navigate("/collections");
-        setTitle(collectionTitle);
-
         fetchScripts(true);
     }, []);
 
@@ -273,18 +267,19 @@ export default function Scripts() {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {
+                                <DropdownMenuItem onClick={(e) => {
+                                    e.stopPropagation();
                                     toast.info("Script ID copied to clipboard")
                                     navigator.clipboard.writeText(row.original.scriptId.toString());
                                 }}>
                                     <Copy className="mr-2 h-4 w-4" />
                                     Copy ID
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setEditModalOpen(true)}>
+                                <DropdownMenuItem onClick={(e) => {e.stopPropagation(); setEditModalOpen(true)}}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setDeleteModalOpen(true)}>
+                                <DropdownMenuItem onClick={(e) => {e.stopPropagation(); setDeleteModalOpen(true)}}>
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
                                 </DropdownMenuItem>
@@ -299,7 +294,7 @@ export default function Scripts() {
     return(
         <>  
             <PageTitle tabTitle={`QAdapt | ${currentQueryParameters.get("title")!}`}/>
-            <h2 className="text-3xl py-5 font-bold">Scripts in "{title}"</h2>
+            <h2 className="text-3xl py-5 font-bold">Scripts in "{collectionName}"</h2>
 
             <Breadcrumb className="mb-5">
                 <BreadcrumbList>
@@ -311,7 +306,7 @@ export default function Scripts() {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbPage>{title}</BreadcrumbPage>
+                        <BreadcrumbPage>{collectionName}</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                 </BreadcrumbList>
@@ -364,6 +359,7 @@ export default function Scripts() {
 
                     await fetchScripts(false, cursor);
                 }}
+                onRowClick={(row) => navigate(`/collections/${collectionId}/${collectionName}/${row.scriptId}/${row.name}`)}
                 noResultsMsg="This Collection has no scripts"
             />
         </>

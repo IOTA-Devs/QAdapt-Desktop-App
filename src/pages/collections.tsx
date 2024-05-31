@@ -239,7 +239,7 @@ function CollectionCard({ collectionId, name, description, lastUpdated, scripts,
                     onEdited(name, description, collectionId);
                 }}
                 />
-            <Link to={`/collections/${collectionId}?title=${defaultVals.name}`}>
+            <Link to={`/collections/${collectionId}/${defaultVals.name}`}>
                 <CardHeader>
                     <CardTitle>{defaultVals.name}</CardTitle>
                     <CardDescription>{defaultVals.description}</CardDescription>
@@ -430,14 +430,14 @@ export default function Collections() {
                 }
                 {loading && !collections.length ? 
                 <>
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
-                    <Skeleton className="w-[calc(25%-0.75rem)] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
+                    <Skeleton className="w-[300px] h-[270px] rounded-md" />
                 </>
                 :
                 <>

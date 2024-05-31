@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/contexts/themeContext";
 import { SidebarMenuProps } from "@/types/types";
+import Logo from "../../assets/images/QAdapt_Logo.png";
 
 export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
     const { userData, logout } = useContext(AuthContext);
@@ -29,7 +30,7 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
             <nav className="h-full flex flex-col border-r shadow-sm justify-between">
                 <div>
                     <div className="flex flex-row gap-2 items-center p-3">
-                        <img className="w-10" src="/images/logos/QAdapt_Logo.png" alt="QAdapt_logo" />
+                        <img className="w-10" src={Logo} alt="QAdapt_logo" />
                         <h3 className="text-lg font-semibold">QAdapt</h3>
                     </div>
                     <div className="flex flex-col gap-2 m-1 mt-5">
@@ -108,9 +109,9 @@ export default function SidebarMenu({ children, items } : SidebarMenuProps ) {
                 </div>
             </nav>
         </aside>
-        <div className="flex-shrink-1 w-full xl:mx-40 lg:mx-20 overflow-y-auto">
+        <>
           {children}
-        </div>
+        </>
       </div>
     );
 }

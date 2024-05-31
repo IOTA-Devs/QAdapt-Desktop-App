@@ -4,7 +4,7 @@ import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 interface AuthContextType {
-    loggedIn: boolean
+    loggedIn: boolean | null
     userData: UserData | null
     login: (username: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
     signup: (username: string, fullName: string, email: string, password: string) => Promise<{ userData: UserData | null, error: APIError | null }>
@@ -39,7 +39,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
     const [userData, setUserData] = useState<UserData | null>(null);
-    const [loggedIn, setLoggedIn] = useState<boolean>(true);
+    const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
     const firstRender = useRef<boolean>(true);
     const authData = useRef<AuthData | null>(null);
     
@@ -60,6 +60,11 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     APIProtected.interceptors.request.use(async (config) => {
         const now = Date.now();
         if (!authData.current || authData.current.tokenSetAt / 1000 + authData.current.tokenExpiresIn - 1 <= now / 1000) {
+            if (localStorage.getItem('skipRefresh')) {
+                localStorage.removeItem('skipRefresh');
+                return Promise.reject();
+            }
+
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     requestQueue.push({ resolve, reject, config });
@@ -94,8 +99,18 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 processQueue();
             } catch (err) {
                 isRefreshing = false;
-                processQueue(err);
+                
+                if (axios.isAxiosError(err) && err.status !== 401) {
+                    localStorage.setItem('skipRefresh', 'true');
+                    window.location.href = "/sessionerror";
+                    return Promise.reject();
+                }
+                deleteFromLocalStorage('userData', 'r_t', 's_id');
+                
                 window.location.href = "/login";
+                setUserData(null);
+                setLoggedIn(false);
+                processQueue(err);
                 return Promise.reject(err);
             }
         }
@@ -148,11 +163,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             localStorage.setItem('userData', JSON.stringify(responseUserData));
             setUserData(responseUserData);
             setLoggedIn(true);
-        }).catch(() => {
-            deleteFromLocalStorage('userData', 'r_t', 's_id');
-
-            setUserData(null);
-            setLoggedIn(false);
         });
     }, [userData]);
 
