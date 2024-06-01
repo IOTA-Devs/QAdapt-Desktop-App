@@ -100,7 +100,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             } catch (err) {
                 isRefreshing = false;
                 
-                if (axios.isAxiosError(err) && err.status !== 401) {
+                if (axios.isAxiosError(err) && err.response && err.response.status !== 401) {
                     localStorage.setItem('skipRefresh', 'true');
                     window.location.href = "/sessionerror";
                     return Promise.reject();

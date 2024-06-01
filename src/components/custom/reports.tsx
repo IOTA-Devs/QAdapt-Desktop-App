@@ -13,6 +13,12 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 import PageTitle from '@/components/custom/page-title';
 
 function ReportSkeletonLoader() {
@@ -35,31 +41,36 @@ function ReportSkeletonLoader() {
     );
 }
 
-function TestReport({ name, description, status, screenshotURL }: TestReportProps) {
+function TestReport({ description, status, screenshotURL }: TestReportProps) {
+    const getStatus = (status: string) => {
+        switch (status) {
+            case "Success":
+                return "ok";
+            case "Failed":
+                return "danger";
+            case "Warning":
+                return "warning";
+            default:
+                return "info";
+        }
+    }
+    
     return (
         <>
-            <div className="flex justify-between p-3">
-                <div className="w-52">
-                    <p className="pb-2">{name}</p>
-                    <p className="bg-secondary">
+            <div className="flex justify-between p-3 gap-10">
+                <div className="w-[60%] whitespace-pre-line bg-secondary rounded-md">
+                    <p className="p-4">
                         {description}
                     </p>
                 </div>
-                <div>
-                    <Status status={(() => {
-                        switch (status) {
-                            case "Success":
-                                return "ok";
-                            case "Failed":
-                                return "danger";
-                            case "Warning":
-                                return "warning"
-                        }})()} 
+                <div className="w-[10%]">
+                    <Status status={getStatus(status)} 
                         message={status}
                     />
                 </div>
-                <div>
-                    <img src={screenshotURL} alt={`${name}-report-screenshot`} />
+                <div className="w-[30%] h-[200px]">
+                    {!screenshotURL && <div className="object-cover bg-secondary rounded-md flex h-full items-center justify-center text-muted-foreground"><h2 className="text-xl font-semibold">No screenshot</h2></div>}
+                    <img className="object-cover rounded-md" src={screenshotURL} />
                 </div>
             </div>
         </>
@@ -136,13 +147,24 @@ export default function Reports({ customBreadcrumb }: { customBreadcrumb?: React
                 <>
                     <p className="text-lg text-muted-foreground pb-5">{testData && new Date(testData.startTimestamp).toDateString()}</p>
                     <div className="flex justify-between">
-                        <h4 className="font-semibold w-52">Selector</h4>
-                        <h4 className="font-semibold">Status</h4>
-                        <h4 className="font-semibold">Screenshot</h4>
+                        <h4 className="font-semibold w-[60%]">Selector</h4>
+                        <h4 className="font-semibold w-[10%]">Status</h4>
+                        <h4 className="font-semibold w-[30%]">Screenshot</h4>
                     </div>
                     <div className="flex justify-between">
                         {reportData.length ?
-                            <p>Found</p>
+                            <Accordion type="multiple" className="w-full">
+                                {
+                                    reportData.map((log, index) => (
+                                        <AccordionItem value={log.name} key={`${log.name}-${index}`}>
+                                            <AccordionTrigger>{log.name}</AccordionTrigger>
+                                            <AccordionContent>
+                                                <TestReport {...log} />
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))
+                                }
+                            </Accordion>
                         :   
                             <div className="py-6">
                                 <p className="text-center text-muted-foreground">This test has no logs</p>
