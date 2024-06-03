@@ -109,3 +109,8 @@ export interface TestsComponentProps {
     customTitle?: string
     customBreadcrumb?: ReactNode
 }
+
+export enum PersistedStateType {
+    COLLECTIONS = "collections",
+    SCRIPTS = "scripts"
+}

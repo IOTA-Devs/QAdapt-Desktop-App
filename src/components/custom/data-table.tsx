@@ -254,7 +254,7 @@ export function DataTable<TData, TValue>({ columns, data, noResultsMsg, onSelect
                 key={row.id} data-state={row.getIsSelected() && "selected"}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} onClick={(e) => {
-                        if (cell.id.endsWith("select")) {
+                        if (cell.id.includes("select")) {
                           e.stopPropagation();
                         }
                       }}>

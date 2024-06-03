@@ -52,7 +52,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { PersistanceContext } from "@/contexts/persistanceContext";
+import { PersistenceContext } from "@/contexts/persistenceContext";
 import { Label } from "@/components/ui/label";
 import PageTitle from "@/components/custom/page-title";
 
@@ -292,7 +292,7 @@ function CollectionCard({ collectionId, name, description, lastUpdated, scripts,
 
 export default function Collections() {
     const { APIProtected } = useContext(AuthContext);
-    const { collections: savedCollections, saveCollections } = useContext(PersistanceContext);
+    const { collections: savedCollections, saveCollections } = useContext(PersistenceContext);
 
     const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 

@@ -1,12 +1,12 @@
 import SidebarMenu from "./components/custom/sidebar";
-import { Suspense, lazy, useContext, useEffect } from "react";
+import { Suspense, lazy, useContext } from "react";
 import { Navigate, Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import ThemeProvider from "./contexts/themeContext";
 import { LayoutDashboard, LayoutList, Group } from "lucide-react";
 import { AuthContext } from "./contexts/authContext";
 import AuthProvider from "./contexts/authContext";
 import { Toaster } from "@/components/ui/sonner";
-import PersistanceProvider from "./contexts/persistanceContext";
+import PersistenceProvider from "./contexts/persistenceContext";
 import SessionError from "./pages/sessionerror";
 import Loader from "./components/custom/loader";
 
@@ -46,9 +46,9 @@ function Layout() {
       <Suspense fallback={<Loader/>}>
         <div className="flex-shrink-1 w-full xl:mx-40 lg:mx-20 overflow-y-auto">
           <div className="p-5 w-full overflow-y-auto">
-            <PersistanceProvider>
+            <PersistenceProvider>
               <Outlet/>
-            </PersistanceProvider>
+            </PersistenceProvider>
           </div>
         </div>
       </Suspense>

@@ -1,7 +1,7 @@
 import { DataTable } from "@/components/custom/data-table";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { AuthContext } from "@/contexts/authContext";
-import { Script } from "@/types/types";
+import { PersistedStateType, Script } from "@/types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import PageTitle from "@/components/custom/page-title";
+import { PersistenceContext } from "@/contexts/persistenceContext";
 
 function ScriptModal({ collectionId, onSubmit, defaultName, scriptId, open, onOpenChange }: { collectionId: string, onSubmit: (name: string) => void, open: boolean, onOpenChange: (value: boolean) => void, defaultName?: string, scriptId?: number }) {
     const { APIProtected } = useContext(AuthContext);
@@ -103,6 +104,7 @@ function ScriptModal({ collectionId, onSubmit, defaultName, scriptId, open, onOp
 
 export default function Scripts() {
     const { APIProtected } = useContext(AuthContext);
+    const { clearState, collectionScripts, saveCollectionScripts, clearCollectionScripts } = useContext(PersistenceContext);
 
     const { collectionId, collectionName } = useParams();
     const [currentQueryParameters] = useSearchParams();
@@ -117,6 +119,13 @@ export default function Scripts() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const savedScripts = collectionScripts.get(parseInt(collectionId!));
+
+        if (savedScripts && savedScripts.length) {
+            setScripts(savedScripts);
+            return;
+        }
+
         fetchScripts(true);
     }, []);
 
@@ -142,11 +151,17 @@ export default function Scripts() {
             }
 
             if (scripts.length > 1 && !clear) {
-                setScripts((prev) => [...prev, ...fetchedScripts]);
+                setScripts((prev) => {
+                    const newScripts =  [...prev, ...fetchedScripts];
+                    saveCollectionScripts(parseInt(collectionId!), newScripts);
+
+                    return newScripts;
+                });
                 return;
             }
 
             setScripts(fetchedScripts);
+            saveCollectionScripts(parseInt(collectionId!), fetchedScripts);
 
         }).catch((err) => {
             console.error(err);
@@ -189,6 +204,10 @@ export default function Scripts() {
             const filteredScripts = scripts.filter((script) => script.scriptId !== scriptId);
             setScripts(filteredScripts);
 
+            // Clear the global state for collection to force a refetch
+            clearState(PersistedStateType.COLLECTIONS);
+            saveCollectionScripts(parseInt(collectionId!), filteredScripts);
+
             toast.success("Script deleted");
         }).catch((err) => {
             console.error(err);
@@ -221,7 +240,7 @@ export default function Scripts() {
                 const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
                 return (
-                    <>
+                    <div onClick={(e) => e.stopPropagation()}>
                         <AlertDialog open={deleteModalOpen} onOpenChange={(value: boolean) => setDeleteModalOpen(value)}>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -252,6 +271,7 @@ export default function Scripts() {
                                 );
 
                                 setScripts(updatedScripts);
+                                saveCollectionScripts(parseInt(collectionId!), updatedScripts);
                             }}
                             scriptId={row.original.scriptId}
                             collectionId={collectionId!}
@@ -285,7 +305,7 @@ export default function Scripts() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    </>
+                    </div>
                 )
             },
         }
@@ -315,7 +335,7 @@ export default function Scripts() {
             <div className="pb-2 flex justify-start items-center gap-3">
                 <div>
                     <Label htmlFor="collection-name">Search</Label>
-                    <Input type="text" id="collection-name" placeholder="Collection Name" onChange={(e) => {
+                    <Input type="text" id="collection-name" placeholder="Script Name" onChange={(e) => {
                         const value = e.target.value;
                         
                         if (value.length > 32) return;
@@ -335,7 +355,10 @@ export default function Scripts() {
                         open={createModalOpen}
                         onOpenChange={(value: boolean) => setCreateModalOpen(value)}
                         collectionId={collectionId!} 
-                        onSubmit={() => fetchScripts(true)} />
+                        onSubmit={() => {
+                            clearCollectionScripts(parseInt(collectionId!));
+                            fetchScripts(true);
+                        }} />
                 </div>
             </div>
             
