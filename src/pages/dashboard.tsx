@@ -27,7 +27,7 @@ import Status from "@/components/custom/status";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/custom/data-table";
-import { Bar, BarChart, Legend, XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer, Text } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer, Text } from "recharts";
 
 export default function Dashboard() {
     const { saveDashboardData, dashboardData } = useContext(PersistenceContext);
