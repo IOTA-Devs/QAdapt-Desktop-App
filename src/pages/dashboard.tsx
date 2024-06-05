@@ -69,6 +69,7 @@ export default function Dashboard() {
         if (dashboardData) {
             setDashboard(dashboardData);
 
+            setPrevDate(dashboardData.dateRange);
             setDate(dashboardData.dateRange);
             return;
         }
