@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { DateRange } from "react-day-picker";
 
 export interface UserData {
     userId: string;
@@ -112,7 +113,8 @@ export interface TestsComponentProps {
 
 export enum PersistedStateType {
     COLLECTIONS = "collections",
-    SCRIPTS = "scripts"
+    SCRIPTS = "scripts",
+    DASHBOARD = "dashboard"
 }
 
 export interface DashboardGeneralData {
@@ -120,4 +122,11 @@ export interface DashboardGeneralData {
     successfulTests: number
     failedTests: number
     selfHealedScripts: number
+}
+
+export interface DashboardData {
+    generalData?: DashboardGeneralData
+    testsGraphData: { labels: string[], data: number[] }
+    recentTests: Test[]
+    dateRange: DateRange
 }

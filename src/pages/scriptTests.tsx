@@ -1,11 +1,10 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { BreadcrumbList, BreadcrumbSeparator, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Link } from "react-router-dom";
 import Tests from "../components/custom/tests";
 
 export default function ScriptTests() {
     const { collectionId, collectionName, scriptId, scriptName } = useParams();
-    const navigate = useNavigate();
 
     return (
         <>

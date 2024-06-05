@@ -4,7 +4,7 @@ import { AuthContext } from "@/contexts/authContext";
 import { PersistedStateType, Script } from "@/types/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Copy, FileCode2, MoreHorizontal, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -104,10 +104,9 @@ function ScriptModal({ collectionId, onSubmit, defaultName, scriptId, open, onOp
 
 export default function Scripts() {
     const { APIProtected } = useContext(AuthContext);
-    const { clearState, collectionScripts, saveCollectionScripts, clearCollectionScripts } = useContext(PersistenceContext);
+    const { clearState, collectionScripts, saveCollectionScripts, deleteCollectionScripts } = useContext(PersistenceContext);
 
     const { collectionId, collectionName } = useParams();
-    const [currentQueryParameters] = useSearchParams();
     const [loading, setLoading] = useState<boolean>(false);
     const [scripts, setScripts] = useState<Script[]>([]);
     const [cursor, setCursor] = useState<number>();
@@ -313,7 +312,7 @@ export default function Scripts() {
 
     return(
         <>  
-            <PageTitle tabTitle={`QAdapt | ${currentQueryParameters.get("title")!}`}/>
+            <PageTitle tabTitle={`QAdapt | ${collectionName}`}/>
             <h2 className="text-3xl py-5 font-bold">Scripts in "{collectionName}"</h2>
 
             <Breadcrumb className="mb-5">
@@ -356,7 +355,7 @@ export default function Scripts() {
                         onOpenChange={(value: boolean) => setCreateModalOpen(value)}
                         collectionId={collectionId!} 
                         onSubmit={() => {
-                            clearCollectionScripts(parseInt(collectionId!));
+                            deleteCollectionScripts(parseInt(collectionId!));
                             fetchScripts(true);
                         }} />
                 </div>

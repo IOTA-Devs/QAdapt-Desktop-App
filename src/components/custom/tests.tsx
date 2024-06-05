@@ -179,7 +179,7 @@ export default function Reports({ onRowRedirect, customTitle, scriptId, customBr
 
     return (
         <>
-            <PageTitle tabTitle="QAdapt | Tests"/>
+            <PageTitle tabTitle={`QAdapt | ${customTitle ? customTitle + " Tests" : "Tests"}`}/>
             <h2 className="text-3xl py-5 font-bold">{customTitle || "Recent Test Reports"}</h2>
 
             {customBreadcrumb ? customBreadcrumb :

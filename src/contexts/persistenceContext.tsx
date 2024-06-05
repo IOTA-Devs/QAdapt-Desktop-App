@@ -1,27 +1,34 @@
-import { Collection, PersistedStateType, Script } from "@/types/types";
+import { Collection, DashboardData, PersistedStateType, Script } from "@/types/types";
 import { createContext, useRef, useState, ReactNode, useEffect } from "react";
 
 interface PersistenceContextType {
     collections: Collection[]
     collectionScripts: Map<number, Script[]>
+    dashboardData: DashboardData | null | undefined
     saveCollections: (collections: Collection[]) => void,
     saveCollectionScripts: (collectionId: number, scripts: Script[]) => void,
-    clearCollectionScripts: (collectionId: number) => void,
+    deleteCollectionScripts: (collectionId: number) => void,
     clearState: (stateType: PersistedStateType) => void,
+    saveDashboardData: (data: DashboardData) => void,
+    clearDashboardData: () => void
 }
 
 const PersistenceContext = createContext<PersistenceContextType>({
     collections: [],
     collectionScripts: new Map(),
+    dashboardData: null,
     saveCollections: () => {},
     saveCollectionScripts: () => {},
-    clearCollectionScripts: () => {},
-    clearState: () => {}
+    deleteCollectionScripts: () => {},
+    clearState: () => {},
+    saveDashboardData: () => {},
+    clearDashboardData: () => {}
 });
 
 export default function PersistenceProvider({ children }: { children: ReactNode }) {
     const [collections, setCollections] = useState<Collection[]>([]);
     const [collectionScripts, setCollectionScripts] = useState<Map<number, Script[]>>(new Map());
+    const [dashboardData, setDashboardData] = useState<DashboardData | null>();
 
     const persistedStates = useRef<Map<PersistedStateType, number>>(new Map<PersistedStateType, number>());
 
@@ -52,11 +59,23 @@ export default function PersistenceProvider({ children }: { children: ReactNode 
         persistedStates.current.set(PersistedStateType.SCRIPTS, Date.now() + 10 * 60000); // Clear after 10 minutes
     }
 
-    const clearCollectionScripts = (collectionId: number) => {
-        const newCollectionScripts = new  Map(collectionScripts);
+    const deleteCollectionScripts = (collectionId: number) => {
+        const newCollectionScripts = new Map(collectionScripts);
         collectionScripts.delete(collectionId);
         
         setCollectionScripts(newCollectionScripts)
+    }
+
+    const saveDashboardData = (data: DashboardData) => {
+        setDashboardData(data);
+
+        persistedStates.current.set(PersistedStateType.DASHBOARD, Date.now() + 30 * 60000); // Clear after 30 minutes
+    }
+
+    const clearDashboardData = () => {
+        setDashboardData(null);
+
+        persistedStates.current.delete(PersistedStateType.DASHBOARD);
     }
 
     const clearState = (stateType: PersistedStateType) => {
@@ -78,9 +97,12 @@ export default function PersistenceProvider({ children }: { children: ReactNode 
         <PersistenceContext.Provider value={{
             collections,
             collectionScripts,
+            dashboardData,
             saveCollections,
             saveCollectionScripts,
-            clearCollectionScripts,
+            deleteCollectionScripts,
+            saveDashboardData,
+            clearDashboardData,
             clearState
         }}>
             {children}
