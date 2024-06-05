@@ -99,10 +99,10 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 processQueue();
             } catch (err) {
                 isRefreshing = false;
-                
-                if (axios.isAxiosError(err) && err.response && err.response.status !== 401) {
+                if (axios.isAxiosError(err) && err.code === 'ERR_NETWORK') {
                     localStorage.setItem('skipRefresh', 'true');
                     window.location.href = "/sessionerror";
+                    processQueue(err);
                     return Promise.reject();
                 }
                 deleteFromLocalStorage('userData', 'r_t', 's_id');

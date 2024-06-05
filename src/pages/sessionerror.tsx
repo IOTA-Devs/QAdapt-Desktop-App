@@ -10,17 +10,17 @@ export default function SessionError() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (loggedIn === null) {
+        if (localStorage.getItem("skipRefresh")) {
             return;
         }
 
         if (loggedIn === false) {
-            window.location.href = "/login";
+            navigate("/login");
             return;
         }
 
         navigate("/home");
-    });
+    }, []);
 
     return (
         <div className="h-[100vh]">

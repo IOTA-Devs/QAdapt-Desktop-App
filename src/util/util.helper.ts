@@ -83,3 +83,41 @@ export const dataURIToBlob = (base64Data: string, contentType: string): Blob => 
 
     return blob;
 }
+
+/**
+ * 
+ * @param date 
+ */
+export const convertDateToYYYYMMDD = (date: Date): string => {
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+
+    return date.toISOString().split('T')[0];
+}
+
+/**
+ * 
+ * @param n 
+ * @returns Formatted number
+ */
+export const formatNumbers = (n: number) => {
+    const numberArray = n.toString().split('.');
+
+    const decimalPart = numberArray[1];
+    const integerPart = numberArray[0];
+
+    let formattedArray = [];
+
+    if (integerPart.length < 4) return numberArray.join("");
+
+    let counter = 1;
+    for (let i = integerPart.length - 1; i >= 0; i--) {
+        formattedArray.unshift(integerPart[i]);
+
+        if (counter % 3 === 0 && i !== 0) 
+            formattedArray.unshift(',');
+        
+        counter++;
+    }
+    
+    return formattedArray.join("") + (decimalPart ? `.${decimalPart}` : '');
+}

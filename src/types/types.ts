@@ -114,3 +114,10 @@ export enum PersistedStateType {
     COLLECTIONS = "collections",
     SCRIPTS = "scripts"
 }
+
+export interface DashboardGeneralData {
+    totalTests: number
+    successfulTests: number
+    failedTests: number
+    selfHealedScripts: number
+}
