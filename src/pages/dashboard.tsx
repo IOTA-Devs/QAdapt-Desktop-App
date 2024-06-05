@@ -27,7 +27,8 @@ import Status from "@/components/custom/status";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/custom/data-table";
-import { Bar, BarChart, XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer, Text } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer } from "recharts";
+import { toast } from "sonner";
 
 export default function Dashboard() {
     const { saveDashboardData, dashboardData } = useContext(PersistenceContext);
@@ -78,45 +79,50 @@ export default function Dashboard() {
         if (!date || !date.from || !date.to) return;
 
         setLoading(true);
-        const [generalData, graphData, recentTests] = await Promise.all([
-            APIProtected.get("api/dashboard/general"),
-            APIProtected.get(`api/dashboard/tests_table_data?start_date=${convertDateToYYYYMMDD(date.from)}&end_date=${convertDateToYYYYMMDD(date.to)}`),
-            APIProtected.get(`api/tests?recent=true&limit=10`)
-        ]);
-
-        const testsRes: Test[] = recentTests.data.tests.map((test: any) => {
-            return {
-                testId: test.test_id,
-                scriptId: test.script_id,
-                name: test.name,
-                startTimestamp: test.start_timestamp,
-                endTimestamp: test.end_timestamp,
-                status: test.status
-            } as Test;
-        });
-
-        const data = {
-            generalData: {
-                totalTests: generalData.data.dashboard_data.total_tests,
-                successfulTests: generalData.data.dashboard_data.successful_tests,
-                failedTests: generalData.data.dashboard_data.failed_tests,
-                selfHealedScripts: generalData.data.dashboard_data.self_healed_scripts
-            },
-            testsGraphData: {
-                labels: graphData.data.tests_graph_data.labels,
-                data: graphData.data.tests_graph_data.data
-            },
-            recentTests: testsRes || [],
-            dateRange: {
-                from: date.from,
-                to: date.to
-            }
-        };
-        
-        setPrevDate(date);
-        saveDashboardData(data);
-        setDashboard(data);
-        setLoading(false);
+        try {
+            const [generalData, graphData, recentTests] = await Promise.all([
+                APIProtected.get(`api/dashboard/general`),
+                APIProtected.get(`api/dashboard/tests_table_data?start_date=${convertDateToYYYYMMDD(date.from)}&end_date=${convertDateToYYYYMMDD(date.to)}`),
+                APIProtected.get(`api/tests?recent=true&limit=10`)
+            ]);
+    
+            const testsRes: Test[] = recentTests.data.tests.map((test: any) => {
+                return {
+                    testId: test.test_id,
+                    scriptId: test.script_id,
+                    name: test.name,
+                    startTimestamp: test.start_timestamp,
+                    endTimestamp: test.end_timestamp,
+                    status: test.status
+                } as Test;
+            });
+    
+            const data = {
+                generalData: {
+                    totalTests: generalData.data.dashboard_data.total_tests,
+                    successfulTests: generalData.data.dashboard_data.successful_tests,
+                    failedTests: generalData.data.dashboard_data.failed_tests,
+                    selfHealedScripts: generalData.data.dashboard_data.self_healed_scripts
+                },
+                testsGraphData: {
+                    labels: graphData.data.tests_graph_data.labels,
+                    data: graphData.data.tests_graph_data.data
+                },
+                recentTests: testsRes || [],
+                dateRange: {
+                    from: date.from,
+                    to: date.to
+                }
+            };
+            
+            setPrevDate(date);
+            saveDashboardData(data);
+            setDashboard(data);
+        } catch (err) {
+            toast.error("Error loading dashboard");
+        } finally {
+            setLoading(false);
+        }
     }
 
     const columns: ColumnDef<Test>[] = [
@@ -186,51 +192,6 @@ export default function Dashboard() {
         <div className="overflow-hidden">
             <h2 className="text-3xl py-5 font-bold">Dashboard</h2>
 
-            <div className="mb-3">
-                <div className="flex justify-end">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                id="date"
-                                variant={"outline"}
-                                className={cn(
-                                "w-[300px] justify-start text-left font-normal",
-                                !date && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon 
-                                className="mr-2 h-4 w-4" />
-                                {date?.from ? (
-                                date.to ? (
-                                    <>
-                                        {format(date.from, "LLL dd, y")} -{" "}
-                                        {format(date.to, "LLL dd, y")}
-                                    </>
-                                ) : (
-                                    format(date.from, "LLL dd, y")
-                                )
-                                ) : (
-                                    <span>Pick a date</span>
-                                )}
-                            </Button>
-                        </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    initialFocus
-                                    mode="range"
-                                    defaultMonth={date?.from}
-                                    selected={date}
-                                    onSelect={setDate}
-                                    numberOfMonths={2}
-                                    disabled={(date) =>
-                                        date > new Date()
-                                    }
-                                />
-                        </PopoverContent>
-                    </Popover>
-                </div>
-            </div>
-
             <div className="flex flex-col gap-6">
                 <div className="flex flex-row gap-3">
                     <Card className="w-full">
@@ -276,26 +237,70 @@ export default function Dashboard() {
                            </CardDescription>
                         </CardHeader>
                         <CardContent className="w-full h-full pt-2">
-                            {!loading && dashboard.testsGraphData ?
-                            <ResponsiveContainer width="100%" height="80%">
-                                <BarChart data={
-                                    dashboard.testsGraphData.labels.map((label, index) => (
-                                        {
-                                            name: label,
-                                            tests: dashboard.testsGraphData.data[index], 
-                                        }
-                                    ))
-                                }>
-                                    <XAxis dataKey="name" minTickGap={50} />
-                                    <YAxis />
-                                    <ChartTooltip cursor={{fill: 'transparent'}} wrapperClassName="rounded-md text-black" />
-                                    <Bar dataKey="tests" fill="#8884d8" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                            : 
-                            <div className="flex justify-center items-center h-[80%] w-full">
-                                <Loader2 className="mr-2 h-10 w-10 animate-spin" />
+                            <div className="mb-3">
+                                <div className="flex justify-start">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                id="date"
+                                                variant={"outline"}
+                                                className={cn(
+                                                "w-[300px] justify-start text-left font-normal",
+                                                !date && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon 
+                                                className="mr-2 h-4 w-4" />
+                                                {date?.from ? (
+                                                date.to ? (
+                                                    <>
+                                                        {format(date.from, "LLL dd, y")} -{" "}
+                                                        {format(date.to, "LLL dd, y")}
+                                                    </>
+                                                ) : (
+                                                    format(date.from, "LLL dd, y")
+                                                )
+                                                ) : (
+                                                    <span>Pick a date</span>
+                                                )}
+                                            </Button>
+                                        </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    initialFocus
+                                                    mode="range"
+                                                    defaultMonth={date?.from}
+                                                    selected={date}
+                                                    onSelect={setDate}
+                                                    numberOfMonths={2}
+                                                    disabled={(date) =>
+                                                        date > new Date()
+                                                    }
+                                                />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
                             </div>
+                            {!loading && dashboard.testsGraphData ?
+                                <ResponsiveContainer width="100%" height="80%">
+                                    <BarChart data={
+                                        dashboard.testsGraphData.labels.map((label, index) => (
+                                            {
+                                                name: label,
+                                                tests: dashboard.testsGraphData.data[index], 
+                                            }
+                                        ))
+                                    }>
+                                        <XAxis dataKey="name" minTickGap={50} />
+                                        <YAxis />
+                                        <ChartTooltip cursor={{fill: 'transparent'}} wrapperClassName="rounded-md text-black" />
+                                        <Bar dataKey="tests" fill="#11C3DE" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                                : 
+                                <div className="flex justify-center items-center h-[80%] w-full">
+                                    <Loader2 className="mr-2 h-10 w-10 animate-spin" />
+                                </div>
                             }
                         </CardContent>
                     </Card>
