@@ -190,10 +190,10 @@ export default function Dashboard() {
     ];
 
     return (
-        <div className="overflow-hidden">
+        <div className="overflow-hidden h-[95vh]">
             <h2 className="text-3xl py-5 font-bold">Dashboard</h2>
 
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 h-full">
                 <div className="flex flex-row gap-3">
                     <Card className="w-full">
                         <CardHeader>
@@ -229,7 +229,7 @@ export default function Dashboard() {
                     </Card>
                 </div>
 
-                <div className="flex flex-row gap-3 h-[750px]">
+                <div className="flex flex-row gap-3 h-[68%]">
                     <Card className="w-[65%]">
                         <CardHeader>
                            <CardTitle>Tests Ran</CardTitle>
@@ -283,7 +283,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             {!loading && dashboard.testsGraphData ?
-                                <ResponsiveContainer width="100%" height="80%">
+                                <ResponsiveContainer width="100%" height="70%">
                                     <BarChart data={
                                         dashboard.testsGraphData.labels.map((label, index) => (
                                             {
@@ -311,13 +311,13 @@ export default function Dashboard() {
                            <CardTitle>Most Recent Test Runs</CardTitle>
                         </CardHeader>
                         <CardContent>
-                        <DataTable
-                            columns={columns}
-                            data={dashboard.recentTests}
-                            loading={loading}
-                            noResultsMsg="No test have been run"
-                            onRowClick={(row) => navigate(`/tests/reports/${row.testId}`)}
-                        />
+                            <DataTable
+                                columns={columns}
+                                data={dashboard.recentTests}
+                                loading={loading}
+                                noResultsMsg="No test have been run"
+                                onRowClick={(row) => navigate(`/tests/reports/${row.testId}`)}
+                            />
                         </CardContent>
                     </Card>
                 </div>
