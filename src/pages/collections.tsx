@@ -296,7 +296,7 @@ export default function Collections() {
 
     const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    const [dateCursor, setDateCursor] = useState<Date>();
+    const [dateCursor, setDateCursor] = useState<Date | null>();
     const [collections, setCollections] = useState<Collection[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [createCollectionModal, setCreateCollectionModal] = useState<boolean>(false);
@@ -342,6 +342,8 @@ export default function Collections() {
 
             if (response.data.collections.length >= response.data.limit) {
                 setDateCursor(new Date(response.data.collections[response.data.collections.length - 1].last_updated));
+            } else {
+                setDateCursor(null);
             }
         }).catch((err) => {
             console.error(err);
@@ -466,6 +468,11 @@ export default function Collections() {
                             saveCollections(updatedCollections);
                         }}></CollectionCard>
                     ))}
+                    {dateCursor &&
+                        <div className="w-full flex justify-center">
+                            <Button variant="default" onClick={() => fetchCollections(false)}>Load More</Button>
+                        </div>
+                    }
                 </>
                 }
             </div>
