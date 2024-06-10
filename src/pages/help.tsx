@@ -27,14 +27,14 @@ export default function Help() {
         Prism.highlightAll()
     }, [])
     return (
-        <>
+        <div className="scroll-smooth">
             <PageTitle tabTitle="QAdapt | Help" />
             <h2 className="text-3xl py-5 font-bold">Help</h2>
             <div className="flex container flex-row justify-between w-full px-0 mx-0">
                 <div className="flex flex-col w-8/12 mx-0 mr-10">
                     {/* cambiar estos styles no me gusta que sea igual que el h2 grande */}
                     <h2 className="text-3xl py-5 font-bold mx-0 w-full">introduction</h2>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">QAdapt introduction</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="intro">QAdapt introduction</h2>
                     <div>
                         <p>QAdapt is a self-healing framework, using a webdriver it allows you to find elements in a website for testing purposes and 
                             using our library, saves the elements that were successful and their attributes and everything that makes them an html elmeent in a local database
@@ -43,7 +43,7 @@ export default function Help() {
                             even if locators have been changed.
                         </p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Why use a self-healing framework</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="why">Why use a self-healing framework</h2>
                     <div>
                         <p>A self-healing framework allows your quality assurance developpers to focus on failing tests that matter, if a locator is missing in our self-healing framework
                             the important tests still run, and everything still runs as expected so a lot of debugging time is cut down for the engineer since using selenium by itself there would be
@@ -51,7 +51,7 @@ export default function Help() {
                         </p>
                     </div>
                     <h2 className="text-3xl py-5 font-bold mx-0 w-full">Getting Started with QAdapt</h2>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Account setup</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="setup">Account setup</h2>
                     <div>
                         <p>In order to setup your account, you must first log into our Desktop App or website, the way we link your account to an isntance of a webdriver running in your codebase
                             is via personal access tokens, these tokens should be used as a paremeter to our webdriver object's setup method on initial setup, after this initial setup all the functionality
@@ -59,9 +59,19 @@ export default function Help() {
                         </p>
                     </div>
                     <h2 className="text-3xl py-5 font-bold mx-0 w-full">Python Setup</h2>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">installing the python library</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="pipInstall">installing the python library</h2>
                     <div>
                         <p>Our python library is registered in PyPi, which means all you need to do is run the following command to have our library installed in your python environment. </p>
+                    </div>
+                    <div className="mr-10">
+                        <pre>
+                            <code className="language-python">
+                                pip install qadapt
+                            </code>
+                        </pre>
+                    </div>
+                    <div>
+                        <p>Then to import our library within your actual code include this in your python file:</p>
                     </div>
                     <div className="mr-10">
                         <pre>
@@ -70,7 +80,7 @@ export default function Help() {
                             </code>
                         </pre>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">QAdapt webdriver</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="object">QAdapt webdriver</h2>
                     <div>
                         <p>Our webdriver is the way your python tests will interact with our library so it will be necessary for you to initialize it using the same parameters you would use
                             for a chromeWebDriver since we inherit from that class, you would initialize our object liek this
@@ -86,7 +96,7 @@ export default function Help() {
                     <div>
                         <p>In this example, we use the service argument but all that is necessary is to initialize it like a chromeWebDriver, this could also be done with a web driver provider.</p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Webdriver Methods</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="methods">Webdriver Methods</h2>
                     <div>
                         <p>Our webdriver has the same methods that a selenium webdriver has as can be seen here: selenium_docs, but it also includes a custom method we use in order to locate elements called find_element_custom, this method automatically does a WebDriverWait() 
                             in order to make sure the element you're looking for is loaded in the page, and has all of our self-healing functionality being a drop-in replacement to selenium's find_element method, this is how you would use it with our driver variable declared above.
@@ -156,7 +166,7 @@ if __name__ == "__main__":
                         </pre>
                     </div>
                     <h2 className="text-3xl py-5 font-bold mx-0 w-full">QAdapt website</h2>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Overview</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="overview">Overview</h2>
                     <div>
                         <p>This website is meant to give you an overview of the different tests you've run using the qadapt python library, we have a couple of ways we organize the data sent from the library which is by using collections which are a list of scripts, scripts are meant to be
                             an actual testing script a quality assurance engineer uses, and tests are meant to be the individual tests of that script, an individual find_element method being run, and selfHealingReports are each individual run of that find_element instance, whether or not self-healing was
@@ -165,31 +175,31 @@ if __name__ == "__main__":
                         </p>
                     </div>
 
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Dashboard</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="dashboard">Dashboard</h2>
                     <div>
                         <p>The dashboard section of the website shows a summary of all the tests that have been run and a menu for seeing your most recent tests, it also contains other important information and a graph showing the tests you have run.</p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Collections</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="collections">Collections</h2>
                     <div>
                         <p>Collections are simply a list of different scripts, each script is meant to represent an actual test script a QA engineer has, uses and has previously run, here you can create a new collection and view all the collections you currently have including a timestamp for the last date an item in the collection was modified.</p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Scripts</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="scripts">Scripts</h2>
                     <div>
                         <p>scripts are individual items of a collection, they're meant to be an individual python script, they contain different test runs and you can view them by clicking on one of them in the collections tab of the website.</p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Tests</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="tests">Tests</h2>
                     <div>
                         <p>A test is a series of Self-HealingReports being done, meaning a series of find_element instances being performed on html elements, you can find these by clicking on an individual Script in the scripts tab where you will see a list of tests and whether or not each test was a success or not  and when they were finished. </p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Reports</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="reports">Reports</h2>
                     <div>
                         <p>A report is an individual run of a test, if you run a find_element in our library, the result of that run will be seen as a Report, whethereor not self-healing was necessary, whether or not it was a success or not and the screenshot of what the website looked like at that point in time are all important data points shown by our library, you can find these by clicking on an individual test in the tests page.</p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Profile</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="profile">Profile</h2>
                     <div>
                         <p>The profile page is the first page that's a bit harder to find, you need to click on the three dots next to your profile icon and name, and a pop-up menu will appear, you then  click the Profile icon and you're there  here you can change up your profile picture, username and Full name, your email is unchangeable at this time but you can also change your password and manage your personal access tokens in this part of the website.</p>
                     </div>
-                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Personal access tokens</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full" id="pac">Personal access tokens</h2>
                     <div>
                         <p>You can find personal access tokens in the Profile page, under the personal access tokens tab, here you will be able to create and delete personal access tokens, in order to use the library, create a perosnal access token and copy it somewhere secure like an environment variable, save it and use it to initialize the customDriver object like mentioned above in the Python setup section.</p>
                     </div>
@@ -207,34 +217,35 @@ if __name__ == "__main__":
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Introduction</AccordionTrigger>
                                     <AccordionContent>
-                                        <div>qadapt introduction</div>
-                                        <div>why use a self-healing framework</div>
+                                        <a href="#intro" className="block hover:underline">qadapt introduction</a>
+                                        <a href="#why" className="block hover:underline">why use a self-healing framework</a>
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-2">
                                     <AccordionTrigger>Getting Started</AccordionTrigger>
                                     <AccordionContent>
-                                        <div>Account Setup</div>
+                                        <a href="#setup" className="block hover:underline">Account Setup</a>
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-3">
                                     <AccordionTrigger>Python setup</AccordionTrigger>
                                     <AccordionContent>
-                                        <div>pip installation</div>
-                                        <div>qadapt object webDriver</div>
-                                        <div>webdriver methods</div>
+                                        <a href="#pipInstall" className="block hover:underline">pip installation</a>
+                                        <a href="#object" className="block hover:underline">qadapt object webDriver</a>
+                                        <a href="#methods" className="block hover:underline">webdriver methods</a>
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-4">
                                     <AccordionTrigger>Website help</AccordionTrigger>
                                     <AccordionContent>
-                                        <div>overview</div>
-                                        <div>collections</div>
-                                        <div>scripts</div>
-                                        <div>tests</div>
-                                        <div>reports</div>
-                                        <div>profile</div>
-                                        <div>personal access tokens</div>
+                                        <a href="#overview" className="block hover:underline">overview</a>
+                                        <a href="#dashboard" className="block hover:underline">dashboard</a>
+                                        <a href="#collections" className="block hover:underline">collections</a>
+                                        <a href="#scripts" className="block hover:underline">scripts</a>
+                                        <a href="#tests" className="block hover:underline">tests</a>
+                                        <a href="#reports" className="block hover:underline">reports</a>
+                                        <a href="#profile" className="block hover:underline">profile</a>
+                                        <a href="#pac" className="block hover:underline">personal access tokens</a>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -242,6 +253,6 @@ if __name__ == "__main__":
                     </Card>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
