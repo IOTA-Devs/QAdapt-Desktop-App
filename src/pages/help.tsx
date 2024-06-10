@@ -155,8 +155,45 @@ if __name__ == "__main__":
                             </code>
                         </pre>
                     </div>
-                    <h2>QAdapt website</h2>
-                    <h2>Collections</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">QAdapt website</h2>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Overview</h2>
+                    <div>
+                        <p>This website is meant to give you an overview of the different tests you've run using the qadapt python library, we have a couple of ways we organize the data sent from the library which is by using collections which are a list of scripts, scripts are meant to be
+                            an actual testing script a quality assurance engineer uses, and tests are meant to be the individual tests of that script, an individual find_element method being run, and selfHealingReports are each individual run of that find_element instance, whether or not self-healing was
+                            performed, and whether or not it was successful or not, this information is then provided on the website for an engineer to see and make the proper changes to the test without needing to figure out what's wrong on their own, additionally in order to use the library you need to obtain a
+                            personal access token from this website, we'll cover obtaining a personal access token more in detail in a later section.
+                        </p>
+                    </div>
+
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Dashboard</h2>
+                    <div>
+                        <p>The dashboard section of the website shows a summary of all the tests that have been run and a menu for seeing your most recent tests, it also contains other important information and a graph showing the tests you have run.</p>
+                    </div>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Collections</h2>
+                    <div>
+                        <p>Collections are simply a list of different scripts, each script is meant to represent an actual test script a QA engineer has, uses and has previously run, here you can create a new collection and view all the collections you currently have including a timestamp for the last date an item in the collection was modified.</p>
+                    </div>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Scripts</h2>
+                    <div>
+                        <p>scripts are individual items of a collection, they're meant to be an individual python script, they contain different test runs and you can view them by clicking on one of them in the collections tab of the website.</p>
+                    </div>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Tests</h2>
+                    <div>
+                        <p>A test is a series of Self-HealingReports being done, meaning a series of find_element instances being performed on html elements, you can find these by clicking on an individual Script in the scripts tab where you will see a list of tests and whether or not each test was a success or not  and when they were finished. </p>
+                    </div>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Reports</h2>
+                    <div>
+                        <p>A report is an individual run of a test, if you run a find_element in our library, the result of that run will be seen as a Report, whethereor not self-healing was necessary, whether or not it was a success or not and the screenshot of what the website looked like at that point in time are all important data points shown by our library, you can find these by clicking on an individual test in the tests page.</p>
+                    </div>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Profile</h2>
+                    <div>
+                        <p>The profile page is the first page that's a bit harder to find, you need to click on the three dots next to your profile icon and name, and a pop-up menu will appear, you then  click the Profile icon and you're there  here you can change up your profile picture, username and Full name, your email is unchangeable at this time but you can also change your password and manage your personal access tokens in this part of the website.</p>
+                    </div>
+                    <h2 className="text-3xl py-5 font-bold mx-0 w-full">Personal access tokens</h2>
+                    <div>
+                        <p>You can find personal access tokens in the Profile page, under the personal access tokens tab, here you will be able to create and delete personal access tokens, in order to use the library, create a perosnal access token and copy it somewhere secure like an environment variable, save it and use it to initialize the customDriver object like mentioned above in the Python setup section.</p>
+                    </div>
+
 
                 </div>
                 <div className="flex w-5/12">
